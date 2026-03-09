@@ -5,23 +5,27 @@ const Sidebar = () => {
     {
       label: "Dashboard",
       icon: "pi pi-home",
+      url: "/"
     },
     {
       label: "Transactions",
       icon: "pi pi-list",
+      url: "/transactions"
     },
     {
       label: "Accounts",
       icon: "pi pi-wallet",
+      url: "/accounts"
     },
     {
       label: "Reports",
       icon: "pi pi-chart-bar",
+      url: "/reports"
     },
   ];
 
   return (
-    <div className="w-15rem flex justify-content-center">
+    <div className="flex justify-content-center">
       <PanelMenu model={items} className="w-full md:w-20rem"/>
     </div>
   );
