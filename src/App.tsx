@@ -1,9 +1,12 @@
-import Navbar from "./Components/Navbar"
+import DashboardLayout from "./layout/DashboardLayout"
+import Dashboard from "./pages/Dashboard"
 
 const App = () => {
   return(
     <>
-      <Navbar/>
+      <DashboardLayout>
+        <Dashboard/>
+      </DashboardLayout>
     </>
   )
 }
