@@ -3,6 +3,7 @@
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
+import type { Transaction } from "../types/Transaction";
 
 const amountTemplate = (rowData:any) => {
   const formatted = rowData.amount.toLocaleString("en-IN")
@@ -18,16 +19,16 @@ const actionTemplate = () => {
   )
 }
 
-const transactions = [
-  { id: 1, date: "2026-03-10", title: "Salary", category: "Income", account: "SBI", amount: 25000 },
-  { id: 2, date: "2026-03-11", title: "Groceries", category: "Food", account: "SBI", amount: -500 },
-  { id: 3, date: "2026-03-12", title: "Petrol", category: "Transport", account: "SBI", amount: -300 },
-  { id: 4, date: "2026-03-13", title: "Freelance", category: "Income", account: "SBI", amount: 4000 }
+const transactions : Transaction[] = [
+  { id: 1, date: "2026-03-10", description: "Salary", category: "Income", account: "SBI", amount: 25000 },
+  { id: 2, date: "2026-03-11", description: "Groceries", category: "Food", account: "SBI", amount: -500 },
+  { id: 3, date: "2026-03-12", description: "Petrol", category: "Transport", account: "SBI", amount: -300 },
+  { id: 4, date: "2026-03-13", description: "Freelance", category: "Income", account: "SBI", amount: 4000 }
 ];
 
 const columns = [
   { field: "date", header: "Date", sortable: true},
-  { field: "title", header: "Description" },
+  { field: "description", header: "Description" },
   { field: "category", header: "Category" },
   { field: "account", header: "Account" },
   { field: "amount", header: "Amount", body: amountTemplate, sortable: true},

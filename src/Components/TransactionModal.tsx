@@ -1,8 +1,11 @@
 import { Calendar } from "primereact/calendar";
 import { Dialog } from "primereact/dialog";
-import { Dropdown } from "primereact/dropdown";
+import { Dropdown, type DropdownChangeEvent } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
+import { useState } from "react";
+import type { Category } from "../types/Category";
+import type { Account } from "../types/Account";
 
 type Props = {
   visible: boolean;
@@ -10,7 +13,6 @@ type Props = {
 };
 
 const TransactionModal = ({ visible, setVisible }: Props) => {
-
   const modalHeader = (
     <div className="flex align-items-center gap-2">
       <i className="pi pi-plus"></i>
@@ -19,10 +21,29 @@ const TransactionModal = ({ visible, setVisible }: Props) => {
   );
 
   const modalFooter = (
-    <div>
-      <Button label="Save" className="p-2" icon="pi pi-check" onClick={() => setVisible(false)} autoFocus />
+    <div className="flex align-items-center justify-content-between">
+      <Button label="Cancel" className="p-2" icon="pi pi-cancel" onClick={() => setVisible(false)} />
+      <Button label="Save" className="p-2" icon="pi pi-check" onClick={() => setVisible(false)}/>
     </div>
   );
+
+  // Populate drop down values for category and account
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+
+  const categories : Category[] = [
+    { name: "Food", value: "Food"},
+    { name : "Transport", value: "Transport"},
+    { name : "Household", value: "Household"},
+    { name : "EMI", value: "EMI"},
+    { name : "Others", value: "Others"},
+  ]
+
+  const accounts : Account[] = [
+    { name : "SBI", value: "SBI"},
+    { name : "HDFC", value: "HDFC"},
+    { name : "Others", value: "Others"},
+  ]
 
   return (
     <Dialog
@@ -46,17 +67,19 @@ const TransactionModal = ({ visible, setVisible }: Props) => {
 
         <div className="flex flex-column gap-1">
           <label>Category</label>
-          <InputText placeholder="Food / Rent / Salary" name="category" />
+          <Dropdown options={categories} value={selectedCategory} onChange={(e : DropdownChangeEvent) => setSelectedCategory(e.value)} 
+            optionLabel="name" placeholder="Select a category"/>
         </div>
 
         <div className="flex flex-column gap-1">
           <label>Account</label>
-          <Dropdown />
+          <Dropdown options={accounts} value={selectedAccount} onChange={(e : DropdownChangeEvent) => setSelectedAccount(e.value)} 
+            optionLabel="name" placeholder="Select a account"/>
         </div>
 
         <div className="flex flex-column gap-1">
-          <label>Notes</label>
-          <InputText placeholder="Optional note" name="notes" />
+          <label>Description</label>
+          <InputText placeholder="Optional note" name="description" />
         </div>
       </div>
     </Dialog>
