@@ -3,7 +3,7 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown, type DropdownChangeEvent } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Category } from "../types/Category";
 import type { Account } from "../types/Account";
 import type { Transaction } from "../types/Transaction";
@@ -12,37 +12,59 @@ type Props = {
   visible: boolean;
   setVisible: (value: boolean) => void;
   addTransaction: (transaction: Transaction) => void;
+  transaction?: Transaction | null;
 };
 
-const TransactionModal = ({ visible, setVisible, addTransaction }: Props) => {
+const TransactionModal = ({
+  visible,
+  setVisible,
+  addTransaction,
+  transaction,
+}: Props) => {
   const [date, setDate] = useState<Date | null>(null);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
+
   // Populate drop down values for category and account
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    null,
-  );
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+
+  // Pre-fill the modal on edit mode using the incoming "transaction" object
+  useEffect(() => {
+    if (!transaction) return;
+
+    setDate(new Date(transaction.date));
+    setAmount(transaction.amount.toString());
+    setDescription(transaction.description);
+    setSelectedCategory(transaction.category);
+    setSelectedAccount(transaction.account);
+  }, [transaction]);
 
   // Handle save
   const handleSave = () => {
-    const transaction: Transaction = {
-      id: Date.now(),
+    const transactionData: Transaction = {
+      id: transaction?.id ?? Date.now(),
       date: date?.toISOString().split("T")[0] || "",
       description,
       category: selectedCategory || "",
       account: selectedAccount || "",
       amount: Number(amount),
     };
-    console.log(transaction);
-    addTransaction(transaction);
+
+    addTransaction(transactionData);
     setVisible(false);
+
+    setDate(null);
+    setAmount("");
+    setDescription("");
+    setSelectedCategory(null);
+    setSelectedAccount(null);
   };
 
   const modalHeader = (
     <div className="flex align-items-center gap-2">
-      <i className="pi pi-plus"></i>
-      <span>Add Transaction</span>
+      <i className={transaction ? "pi pi-pencil" : "pi pi-plus"}></i>
+      <span>{transaction ? "Edit Transaction" : "Add Transaction"}</span>
     </div>
   );
 

@@ -61,7 +61,7 @@ const Dashboard = () => {
       </div>
 
       <div className="mt-4">
-        <RecentTransactions transactions={transactions}/>
+        <RecentTransactions transactions={transactions} setTransactions={setTransactions}/>
       </div>
     </>
   );

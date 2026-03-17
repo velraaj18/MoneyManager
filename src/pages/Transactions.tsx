@@ -60,7 +60,7 @@ const Transactions = () => {
         </Button>
       </div>
 
-      <RecentTransactions transactions={transactions} />
+      <RecentTransactions transactions={transactions} setTransactions={setTransactions}/>
 
       <TransactionModal
         visible={visible}
