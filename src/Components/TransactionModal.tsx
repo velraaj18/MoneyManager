@@ -11,14 +11,14 @@ import type { Transaction } from "../types/Transaction";
 type Props = {
   visible: boolean;
   setVisible: (value: boolean) => void;
-  addTransaction: (transaction: Transaction) => void;
+  saveTransaction: (transaction: Transaction) => void;
   transaction?: Transaction | null;
 };
 
 const TransactionModal = ({
   visible,
   setVisible,
-  addTransaction,
+  saveTransaction,
   transaction,
 }: Props) => {
   const [date, setDate] = useState<Date | null>(null);
@@ -51,7 +51,7 @@ const TransactionModal = ({
       amount: Number(amount),
     };
 
-    addTransaction(transactionData);
+    saveTransaction(transactionData);
     setVisible(false);
 
     setDate(null);
@@ -90,6 +90,7 @@ const TransactionModal = ({
     { name: "Transport", value: "Transport" },
     { name: "Household", value: "Household" },
     { name: "EMI", value: "EMI" },
+    { name: "Income", value: "Income" },
     { name: "Others", value: "Others" },
   ];
 
