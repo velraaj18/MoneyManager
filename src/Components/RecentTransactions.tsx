@@ -10,6 +10,7 @@ import TransactionModal from "./TransactionModal";
 import { Dropdown, type DropdownChangeEvent } from "primereact/dropdown";
 import type { Category } from "../types/Category";
 import { Calendar } from "primereact/calendar";
+import { InputText } from "primereact/inputtext";
 
 const amountTemplate = (rowData: any) => {
   const formatted = rowData.amount.toLocaleString("en-IN");
@@ -39,6 +40,7 @@ export default function RecentTransactions({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
+  const [search, setSearch] = useState("");
 
   const actionTemplate = (rowData: Transaction) => {
     return (
@@ -77,7 +79,7 @@ export default function RecentTransactions({
   // Accept and reject for Delete confirmation modal
   const accept = () => {
     if (selectedId === null) return;
-    setTransactions(prev => prev.filter(t => t.id !== selectedId));
+    setTransactions((prev) => prev.filter((t) => t.id !== selectedId));
     setDeleteDialogVisible(false);
     setSelectedId(null);
   };
@@ -90,11 +92,17 @@ export default function RecentTransactions({
   };
 
   // Handle filters
-const filteredTransactions = transactions.filter(t =>
-  (selectedCategory === "All" || !selectedCategory || t.category === selectedCategory) &&
-  (!fromDate || new Date(t.date) >= fromDate) &&
-  (!toDate || new Date(t.date) <= toDate)
-);
+  const filteredTransactions = transactions.filter(
+    (t) =>
+      (selectedCategory === "All" ||
+        !selectedCategory ||
+        t.category === selectedCategory) &&
+      (!fromDate || new Date(t.date) >= fromDate) &&
+      (!toDate || new Date(t.date) <= toDate) &&
+      (t.description.toLowerCase().includes(search.toLowerCase()) ||
+        t.category.toLowerCase().includes(search.toLowerCase()) ||
+        t.account.toLowerCase().includes(search.toLowerCase())),
+  );
 
   // Category for dropdown filters
   const categories: Category[] = [
@@ -131,10 +139,24 @@ const filteredTransactions = transactions.filter(t =>
             name="date"
             onChange={(e) => setToDate(e.value as Date)}
           />
+          <InputText
+            placeholder="Search transactions..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            name="search"
+          />
         </div>
       </div>
 
-      <DataTable value={filteredTransactions} stripedRows size="small">
+      <DataTable
+        value={filteredTransactions}
+        stripedRows
+        size="small"
+        paginator
+        rows={4}
+        rowsPerPageOptions={[5, 10, 20]}
+        emptyMessage="No transactions found..."
+      >
         {columns.map((col) => (
           <Column
             key={col.field}

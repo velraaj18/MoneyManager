@@ -52,9 +52,11 @@ const Transactions = () => {
   const income = transactions
     .filter((x) => x.category === "Income")
     .reduce((sum, y) => sum + y.amount, 0);
+
   const expense = transactions
     .filter((x) => x.category !== "Income")
     .reduce((sum, y) => sum + y.amount, 0);
+    
   const balance = income - expense;
 
   return (
