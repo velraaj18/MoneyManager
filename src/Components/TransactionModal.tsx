@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import type { Account } from "../types/Account";
 import type { Transaction } from "../types/Transaction";
 import { CategoryService } from "../services/categoryService";
+import type { Category } from "../types/Category";
+import { AccountService } from "../services/accountService";
 
 type Props = {
   visible: boolean;
@@ -24,11 +26,13 @@ const TransactionModal = ({
   const [date, setDate] = useState<Date | null>(null);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [categories, setCategories] = useState<string[]>([])
+
+  const [categories, setCategories] = useState<Category[]>([])
+  const [accounts, setAccounts] = useState<Account[]>([])
 
   // Populate drop down values for category and account
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
 
   // Pre-fill the modal on edit mode using the incoming "transaction" object
   useEffect(() => {
@@ -37,19 +41,22 @@ const TransactionModal = ({
     setDate(new Date(transaction.date));
     setAmount(transaction.amount.toString());
     setDescription(transaction.description);
-    setSelectedCategory(transaction.category);
-    setSelectedAccount(transaction.account);
+    setSelectedCategory(transaction.categoryId);
+    setSelectedAccount(transaction.accountId);
+    console.log(transaction.category)
   }, [transaction]);
 
   // Handle save
   const handleSave = () => {
     const transactionData: Transaction = {
-      id: transaction?.id ?? Date.now(),
+      transactionUID: transaction?.transactionUID ?? Date.now(),
       date: date?.toISOString().split("T")[0] || "",
       description,
-      category: selectedCategory || "",
-      account: selectedAccount || "",
+      categoryId: selectedCategory || 0,
+      accountId: selectedAccount || 0,
       amount: Number(amount),
+      category : "",
+      account : ""
     };
 
     saveTransaction(transactionData);
@@ -86,19 +93,26 @@ const TransactionModal = ({
     </div>
   );
 
-  useEffect(() => {
-    CategoryService.getAll().then((res) => {
-      const names = res.data.data.map((c : any) => c.categoryName)
-      console.log(names)
-      setCategories(names)
-    })
-  }, [])
+useEffect(() => {
+  CategoryService.getAll().then((res) => {
+    const mapped: Category[] = res.data.data.map((c: any) => ({
+      name: c.categoryName,
+      value: c.categoryUID
+    }))
+    console.log(mapped)
+    setCategories(mapped)
+  }),
 
-  const accounts: Account[] = [
-    { name: "SBI", value: "SBI" },
-    { name: "HDFC", value: "HDFC" },
-    { name: "Others", value: "Others" },
-  ];
+  AccountService.getAll().then((res) => {
+    const mapped : Account[] = res.data.data.map((c: any) => ({
+      name: c.accountName,
+      value: c.accountUID
+    }))
+     setAccounts(mapped)
+     
+  })
+ 
+}, [])
 
   return (
     <Dialog

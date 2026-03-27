@@ -1,44 +1,18 @@
 import { Card } from "primereact/card";
 import RecentTransactions from "../components/RecentTransactions";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Transaction } from "../types/Transaction";
+import { transactionService } from "../services/transactionService";
 
 const Dashboard = () => {
 
-    const [transactions, setTransactions] = useState<Transaction[]>([
-      {
-        id: 1,
-        date: "2026-03-10",
-        description: "Salary",
-        category: "Income",
-        account: "SBI",
-        amount: 25000,
-      },
-      {
-        id: 2,
-        date: "2026-03-11",
-        description: "Groceries",
-        category: "Food",
-        account: "SBI",
-        amount: -500,
-      },
-      {
-        id: 3,
-        date: "2026-03-12",
-        description: "Petrol",
-        category: "Transport",
-        account: "SBI",
-        amount: -300,
-      },
-      {
-        id: 4,
-        date: "2026-03-13",
-        description: "Freelance",
-        category: "Income",
-        account: "SBI",
-        amount: 4000,
-      },
-    ]);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+    useEffect(() => {
+      transactionService.getall().then((res) => {
+        setTransactions(res.data.data);
+      })
+    }, [])
 
   return (
     <>

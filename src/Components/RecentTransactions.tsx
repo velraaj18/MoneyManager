@@ -4,13 +4,14 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import type { Transaction } from "../types/Transaction";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DeleteConfirmDialog from "./DeleteConfirmDialog";
 import TransactionModal from "./TransactionModal";
 import { Dropdown, type DropdownChangeEvent } from "primereact/dropdown";
-import type { Category } from "../types/Category";
 import { Calendar } from "primereact/calendar";
 import { InputText } from "primereact/inputtext";
+import { CategoryService } from "../services/categoryService";
+import type { Category } from "../types/Category";
 
 const amountTemplate = (rowData: any) => {
   const formatted = rowData.amount.toLocaleString("en-IN");
@@ -37,7 +38,8 @@ export default function RecentTransactions({
     useState<Transaction | null>(null);
 
   // These are for filters
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>();
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
   const [search, setSearch] = useState("");
@@ -59,7 +61,7 @@ export default function RecentTransactions({
           severity="danger"
           text
           onClick={() => {
-            setSelectedId(rowData.id);
+            setSelectedId(rowData.transactionUID);
             setDeleteDialogVisible(true);
           }}
         />
@@ -68,6 +70,7 @@ export default function RecentTransactions({
   };
 
   const columns = [
+    {field: "transactionUID", header: "TransactionUID", sortable: true },
     { field: "date", header: "Date", sortable: true },
     { field: "description", header: "Description" },
     { field: "category", header: "Category" },
@@ -79,7 +82,7 @@ export default function RecentTransactions({
   // Accept and reject for Delete confirmation modal
   const accept = () => {
     if (selectedId === null) return;
-    setTransactions((prev) => prev.filter((t) => t.id !== selectedId));
+    setTransactions((prev) => prev.filter((t) => t.transactionUID !== selectedId));
     setDeleteDialogVisible(false);
     setSelectedId(null);
   };
@@ -87,16 +90,15 @@ export default function RecentTransactions({
   // Edit transactions
   const editTransaction = (updated: Transaction) => {
     setTransactions((prev) =>
-      prev.map((t) => (t.id === updated.id ? updated : t)),
+      prev.map((t) => (t.transactionUID === updated.transactionUID ? updated : t)),
     );
   };
 
   // Handle filters
   const filteredTransactions = transactions.filter(
     (t) =>
-      (selectedCategory === "All" ||
-        !selectedCategory ||
-        t.category === selectedCategory) &&
+      (!selectedCategory ||
+        t.categoryId === selectedCategory) &&
       (!fromDate || new Date(t.date) >= fromDate) &&
       (!toDate || new Date(t.date) <= toDate) &&
       (t.description.toLowerCase().includes(search.toLowerCase()) ||
@@ -105,15 +107,18 @@ export default function RecentTransactions({
   );
 
   // Category for dropdown filters
-  const categories: Category[] = [
-    { name: "All", value: "All" },
-    { name: "Food", value: "Food" },
-    { name: "Transport", value: "Transport" },
-    { name: "Household", value: "Household" },
-    { name: "EMI", value: "EMI" },
-    { name: "Income", value: "Income" },
-    { name: "Others", value: "Others" },
-  ];
+  useEffect(() => {
+    CategoryService.getAll().then((res) => {
+      const mapped: Category[] = res.data.data.map((c: any) => ({
+        name: c.categoryName,
+        value: c.categoryUID
+      }))
+  
+      console.log(mapped)
+  
+      setCategories(mapped)
+    })
+  }, [])
 
   return (
     <div className="card">
