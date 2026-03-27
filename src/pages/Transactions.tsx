@@ -1,49 +1,24 @@
 import { Button } from "primereact/button";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TransactionModal from "../components/TransactionModal";
 import RecentTransactions from "../components/RecentTransactions";
 import type { Transaction } from "../types/Transaction";
 import { Card } from "primereact/card";
+import api from "../services/api";
 
 const Transactions = () => {
-  const initialData: Transaction[] = [
-    {
-      id: 1,
-      date: "2026-03-10",
-      description: "Salary",
-      category: "Income",
-      account: "SBI",
-      amount: 25000,
-    },
-    {
-      id: 2,
-      date: "2026-03-11",
-      description: "Groceries",
-      category: "Food",
-      account: "SBI",
-      amount: 500,
-    },
-    {
-      id: 3,
-      date: "2026-03-12",
-      description: "Petrol",
-      category: "Transport",
-      account: "SBI",
-      amount: 300,
-    },
-    {
-      id: 4,
-      date: "2026-03-13",
-      description: "Freelance",
-      category: "Income",
-      account: "SBI",
-      amount: 4000,
-    },
-  ];
-
-  const [transactions, setTransactions] = useState<Transaction[]>(initialData);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [visible, setVisible] = useState<boolean>(false);
+
+   useEffect(() => {
+    api
+      .get("/Transactions/GetAllTransactions")
+      .then((res) => {setTransactions(res.data.data) 
+        console.log(res.data.data);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   const addTransaction = (transaction: Transaction) => {
     setTransactions((prev) => [transaction, ...prev]);
@@ -51,20 +26,18 @@ const Transactions = () => {
 
   const income = transactions
     .filter((x) => x.category === "Income")
-    .reduce((sum, y) => sum + y.amount, 0);
+    .reduce((sum, y) => sum + Number(y.amount), 0);
 
   const expense = transactions
     .filter((x) => x.category !== "Income")
-    .reduce((sum, y) => sum + y.amount, 0);
-    
+    .reduce((sum, y) => sum + Number(y.amount), 0);
+
   const balance = income - expense;
 
   return (
     <>
       <div className="flex justify-content-between align-items-center">
-        <h3 className="m-0">
-          Transactions
-        </h3>
+        <h3 className="m-0">Transactions</h3>
 
         <Button
           className="flex align-items-center gap-2 p-2"

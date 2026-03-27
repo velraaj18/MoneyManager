@@ -4,9 +4,9 @@ import { Dropdown, type DropdownChangeEvent } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { useEffect, useState } from "react";
-import type { Category } from "../types/Category";
 import type { Account } from "../types/Account";
 import type { Transaction } from "../types/Transaction";
+import { CategoryService } from "../services/categoryService";
 
 type Props = {
   visible: boolean;
@@ -24,6 +24,7 @@ const TransactionModal = ({
   const [date, setDate] = useState<Date | null>(null);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
+  const [categories, setCategories] = useState<string[]>([])
 
   // Populate drop down values for category and account
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -85,14 +86,13 @@ const TransactionModal = ({
     </div>
   );
 
-  const categories: Category[] = [
-    { name: "Food", value: "Food" },
-    { name: "Transport", value: "Transport" },
-    { name: "Household", value: "Household" },
-    { name: "EMI", value: "EMI" },
-    { name: "Income", value: "Income" },
-    { name: "Others", value: "Others" },
-  ];
+  useEffect(() => {
+    CategoryService.getAll().then((res) => {
+      const names = res.data.data.map((c : any) => c.categoryName)
+      console.log(names)
+      setCategories(names)
+    })
+  }, [])
 
   const accounts: Account[] = [
     { name: "SBI", value: "SBI" },
