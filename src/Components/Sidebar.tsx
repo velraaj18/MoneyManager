@@ -22,6 +22,11 @@ const Sidebar = () => {
       icon: "pi pi-chart-bar",
       url: "/reports"
     },
+    {
+      label: "Category",
+      icon: "pi pi-bars",
+      url: "/Category"
+    },
   ];
 
   return (

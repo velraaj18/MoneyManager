@@ -2,6 +2,8 @@ import DashboardLayout from "./layout/DashboardLayout"
 import Dashboard from "./pages/Dashboard"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Transactions from "./pages/Transactions"
+import { Accounts } from "./pages/Accounts"
+import Categories from "./pages/Categories"
 
 const App = () => {
   return(
@@ -15,6 +17,8 @@ const App = () => {
           <Route element={<DashboardLayout/>}>
             <Route element={<Dashboard/>} path="/"/>
             <Route element={<Transactions/>} path="/transactions"/>
+            <Route element= {<Accounts/>} path="/Accounts"/>
+            <Route element= {<Categories/>} path="/Category"/>
           </Route>
         </Routes>
       </BrowserRouter>
