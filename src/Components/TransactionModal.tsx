@@ -5,30 +5,34 @@ import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { useEffect, useState } from "react";
 import type { Account } from "../types/Account";
-import type { Transaction } from "../types/Transaction";
+import type {
+  CreateTrasactionRequest,
+  Transaction,
+} from "../types/Transaction";
 import { CategoryService } from "../services/categoryService";
 import type { Category } from "../types/Category";
 import { AccountService } from "../services/accountService";
+import { transactionService } from "../services/transactionService";
 
 type Props = {
   visible: boolean;
   setVisible: (value: boolean) => void;
-  saveTransaction: (transaction: Transaction) => void;
   transaction?: Transaction | null;
+  onSave?: () => void;
 };
 
 const TransactionModal = ({
   visible,
   setVisible,
-  saveTransaction,
   transaction,
+  onSave,
 }: Props) => {
   const [date, setDate] = useState<Date | null>(null);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
 
-  const [categories, setCategories] = useState<Category[]>([])
-  const [accounts, setAccounts] = useState<Account[]>([])
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
 
   // Populate drop down values for category and account
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -43,30 +47,28 @@ const TransactionModal = ({
     setDescription(transaction.description);
     setSelectedCategory(transaction.categoryId);
     setSelectedAccount(transaction.accountId);
-    console.log(transaction.category)
+    console.log(transaction.category);
   }, [transaction]);
 
-  // Handle save
-  const handleSave = () => {
-    const transactionData: Transaction = {
-      transactionUID: transaction?.transactionUID ?? Date.now(),
-      date: date?.toISOString().split("T")[0] || "",
-      description,
-      categoryId: selectedCategory || 0,
-      accountId: selectedAccount || 0,
+  const handleSave = async () => {
+    if (!selectedAccount || !selectedCategory || !amount || !date) return;
+
+    const payload: CreateTrasactionRequest = {
+      accountUID: selectedAccount,
+      categoryUID: selectedCategory,
       amount: Number(amount),
-      category : "",
-      account : ""
+      description,
+      date: date,
     };
 
-    saveTransaction(transactionData);
-    setVisible(false);
+    if (transaction) {
+      await transactionService.update(payload, transaction.transactionUID);
+    } else {
+      await transactionService.post(payload);
+    }
 
-    setDate(null);
-    setAmount("");
-    setDescription("");
-    setSelectedCategory(null);
-    setSelectedAccount(null);
+    onSave?.(); // refetch AFTER API finished
+    setVisible(false);
   };
 
   const modalHeader = (
@@ -93,26 +95,25 @@ const TransactionModal = ({
     </div>
   );
 
-useEffect(() => {
-  CategoryService.getAll().then((res) => {
-    const mapped: Category[] = res.data.data.map((c: any) => ({
-      name: c.categoryName,
-      value: c.categoryUID
-    }))
-    console.log(mapped)
-    setCategories(mapped)
-  }),
+  useEffect(() => {
+    (CategoryService.getAll().then((res) => {
+      const mapped: Category[] = res.data.data.map((c: any) => ({
+        name: c.categoryName,
+        value: c.categoryUID,
+      }));
+      console.log(mapped);
+      setCategories(mapped);
+    }),
+      AccountService.getAll().then((res) => {
+        const mapped: Account[] = res.data.data.map((c: any) => ({
+          name: c.accountName,
+          value: c.accountUID,
+        }));
+        setAccounts(mapped);
+      }));
+  }, []);
 
-  AccountService.getAll().then((res) => {
-    const mapped : Account[] = res.data.data.map((c: any) => ({
-      name: c.accountName,
-      value: c.accountUID
-    }))
-     setAccounts(mapped)
-     
-  })
- 
-}, [])
+  
 
   return (
     <Dialog

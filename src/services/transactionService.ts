@@ -1,12 +1,12 @@
-import type { Transaction } from "../types/Transaction";
 import api from "./api";
+import type { CreateTrasactionRequest } from '../types/Transaction';
 
 export const transactionService = {
     getall : () => api.get("/Transactions/GetAllTransactions"),
 
-    post : (data : Transaction) => api.post("/Transactions", data),
+    post : (data : CreateTrasactionRequest) => api.post("/Transactions", data),
 
-    update : (id : number) => api.put(`/Transactions/${id}`),
+    update : (data : CreateTrasactionRequest, id : number) => api.put(`/Transactions/${id}`, data),
 
     delete : (id : number) => api.delete(`/Transactions/${id}`)
 }

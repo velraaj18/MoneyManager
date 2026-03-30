@@ -24,12 +24,12 @@ const amountTemplate = (rowData: any) => {
 
 type Props = {
   transactions: Transaction[];
-  setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
+  onSave? : () => void; 
 };
 
 export default function RecentTransactions({
   transactions,
-  setTransactions,
+  onSave
 }: Props) {
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -78,21 +78,6 @@ export default function RecentTransactions({
     { field: "amount", header: "Amount", body: amountTemplate, sortable: true },
     { field: "actions", header: "Actions", body: actionTemplate },
   ];
-
-  // Accept and reject for Delete confirmation modal
-  const accept = () => {
-    if (selectedId === null) return;
-    setTransactions((prev) => prev.filter((t) => t.transactionUID !== selectedId));
-    setDeleteDialogVisible(false);
-    setSelectedId(null);
-  };
-
-  // Edit transactions
-  const editTransaction = (updated: Transaction) => {
-    setTransactions((prev) =>
-      prev.map((t) => (t.transactionUID === updated.transactionUID ? updated : t)),
-    );
-  };
 
   // Handle filters
   const filteredTransactions = transactions.filter(
@@ -158,7 +143,7 @@ export default function RecentTransactions({
         stripedRows
         size="small"
         paginator
-        rows={4}
+        rows={5}
         rowsPerPageOptions={[5, 10, 20]}
         emptyMessage="No transactions found..."
       >
@@ -179,15 +164,15 @@ export default function RecentTransactions({
         icon="pi pi-exclamation-triangle"
         visible={deleteDialogVisible}
         setVisibile={setDeleteDialogVisible}
-        accept={accept}
-        reject={() => setDeleteDialogVisible(false)}
+        onDelete={onSave}
+        selectedId={selectedId}
       />
 
       <TransactionModal
         visible={editModalVisible}
         setVisible={setEditModalVisible}
-        saveTransaction={editTransaction}
         transaction={selectedTransaction}
+        onSave={onSave}
       />
     </div>
   );

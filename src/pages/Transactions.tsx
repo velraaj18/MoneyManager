@@ -5,24 +5,20 @@ import TransactionModal from "../components/TransactionModal";
 import RecentTransactions from "../components/RecentTransactions";
 import type { Transaction } from "../types/Transaction";
 import { Card } from "primereact/card";
-import api from "../services/api";
+import { transactionService } from "../services/transactionService";
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [visible, setVisible] = useState<boolean>(false);
 
-   useEffect(() => {
-    api
-      .get("/Transactions/GetAllTransactions")
-      .then((res) => {setTransactions(res.data.data) 
-        console.log(res.data.data);
-      })
-      .catch((err) => console.error(err));
-  }, []);
-
-  const addTransaction = (transaction: Transaction) => {
-    setTransactions((prev) => [transaction, ...prev]);
+  const fetchTransactions = async () => {
+    const res = await transactionService.getall();
+    setTransactions(res.data.data);
   };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
 
   const income = transactions
     .filter((x) => x.category === "Income")
@@ -66,13 +62,13 @@ const Transactions = () => {
 
       <RecentTransactions
         transactions={transactions}
-        setTransactions={setTransactions}
+        onSave={fetchTransactions}
       />
 
       <TransactionModal
         visible={visible}
         setVisible={setVisible}
-        saveTransaction={addTransaction}
+        onSave={fetchTransactions}
       />
     </>
   );

@@ -35,7 +35,7 @@ const Dashboard = () => {
       </div>
 
       <div className="mt-4">
-        <RecentTransactions transactions={transactions} setTransactions={setTransactions}/>
+        <RecentTransactions transactions={transactions}/>
       </div>
     </>
   );
