@@ -12,6 +12,7 @@ import { Calendar } from "primereact/calendar";
 import { InputText } from "primereact/inputtext";
 import { CategoryService } from "../services/categoryService";
 import type { Category } from "../types/Category";
+import { transactionService } from "../services/transactionService";
 
 const amountTemplate = (rowData: any) => {
   const formatted = rowData.amount.toLocaleString("en-IN");
@@ -105,6 +106,12 @@ export default function RecentTransactions({
     })
   }, [])
 
+    const accept = async () => {
+      if (!selectedId) return;
+      await transactionService.delete(selectedId);
+      onSave?.();
+    };
+
   return (
     <div className="card">
       <div className="filters mb-5 mt-5">
@@ -164,8 +171,7 @@ export default function RecentTransactions({
         icon="pi pi-exclamation-triangle"
         visible={deleteDialogVisible}
         setVisibile={setDeleteDialogVisible}
-        onDelete={onSave}
-        selectedId={selectedId}
+        accept={accept}
       />
 
       <TransactionModal

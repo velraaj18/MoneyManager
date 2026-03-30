@@ -6,7 +6,7 @@ export const AccountService = {
 
     post : (data : CreateAccountRequest) => api.post("/Accounts", data),
     
-    put : (id : number, data : CreateAccountRequest) => api.put(`/Account/${id}`, data),
+    put : (id : number, data : CreateAccountRequest) => api.put(`/Accounts/${id}`, data),
 
-    delete : (id : number) => api.delete(`/Account/${id}`),
+    delete : (id : number) => api.delete(`/Accounts/${id}`),
 }

@@ -1,5 +1,4 @@
 import { ConfirmDialog } from "primereact/confirmdialog";
-import { transactionService } from "../services/transactionService";
 
 type props = {
   message: string;
@@ -7,8 +6,7 @@ type props = {
   visible: boolean;
   setVisibile: (value: boolean) => void;
   icon: string;
-  selectedId?: number | null;
-  onDelete?: () => void;
+  accept : () => void;
 };
 
 const DeleteConfirmDialog = ({
@@ -17,14 +15,8 @@ const DeleteConfirmDialog = ({
   visible,
   icon,
   setVisibile,
-  selectedId,
-  onDelete,
+  accept,
 }: props) => {
-  const accept = async () => {
-    if (!selectedId) return;
-    await transactionService.delete(selectedId);
-    onDelete?.();
-  };
   return (
     <div>
       <ConfirmDialog
