@@ -8,3 +8,8 @@ export interface AccountsAPIResponse{
     accountName : string,
     description : string 
 }
+
+export interface CreateAccountRequest {
+    accountName : string
+    description : string
+}
