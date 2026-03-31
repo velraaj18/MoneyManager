@@ -30,18 +30,11 @@ const DynamicTable = ({
   selectedRow,
   setSelectedRow,
 }: dynamicTableProps) => {
-
-  const cm = useRef<any>(null)
+  const cm = useRef<any>(null);
 
   return (
     <div>
-
-      {menuModel && (
-        <ContextMenu
-          model={menuModel}
-          ref={cm}
-        />
-      )}
+      {menuModel && <ContextMenu model={menuModel} ref={cm} />}
 
       <DataTable
         value={value}
@@ -50,13 +43,12 @@ const DynamicTable = ({
         selectionMode="single"
         size={size}
         onContextMenu={(e) => {
-          setSelectedRow?.(e.data)
-          cm.current.show(e.originalEvent)
+          setSelectedRow?.(e.data);
+          cm.current.show(e.originalEvent);
         }}
         contextMenuSelection={selectedRow}
         onContextMenuSelectionChange={(e) => setSelectedRow?.(e.value)}
       >
-
         {columns.map((col: customColumn) => (
           <Column
             key={col.field}
@@ -65,11 +57,9 @@ const DynamicTable = ({
             body={col.body}
           />
         ))}
-
       </DataTable>
-
     </div>
-  )
-}
+  );
+};
 
 export default DynamicTable;

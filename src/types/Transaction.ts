@@ -16,3 +16,8 @@ export interface CreateTrasactionRequest {
     description : string,
     date : Date
 }
+
+export interface TransactionCategorySummary{
+    categoryName : string,
+    totalAmount : number
+}

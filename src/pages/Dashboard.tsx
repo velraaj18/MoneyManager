@@ -3,6 +3,8 @@ import RecentTransactions from "../components/RecentTransactions";
 import { useEffect, useState } from "react";
 import type { Transaction } from "../types/Transaction";
 import { transactionService } from "../services/transactionService";
+import { CategoryExpenseChart } from "../components/CustomCharts/CategoryExpenseChart";
+import { IncomeExpenseChart } from "../components/CustomCharts/IncomeExpenseChart";
 
 const Dashboard = () => {
 
@@ -33,6 +35,20 @@ const Dashboard = () => {
           <Card title="Savings">₹ 8,000</Card>
         </div>
       </div>
+
+      <div className="mt-4 grid">
+      <div className="col-12 md:col-6">
+        <Card title="Expense by Category">
+          <CategoryExpenseChart />
+        </Card>
+      </div>
+
+      <div className="col-12 md:col-6">
+        <Card title="Income vs Expense">
+          <IncomeExpenseChart />
+        </Card>
+      </div>
+    </div>
 
       <div className="mt-4">
         <RecentTransactions transactions={transactions}/>

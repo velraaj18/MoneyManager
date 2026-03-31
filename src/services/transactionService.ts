@@ -8,5 +8,11 @@ export const transactionService = {
 
     update : (data : CreateTrasactionRequest, id : number) => api.put(`/Transactions/${id}`, data),
 
-    delete : (id : number) => api.delete(`/Transactions/${id}`)
+    delete : (id : number) => api.delete(`/Transactions/${id}`),
+
+    getCategorySummary : () => api.get("/Transactions/Category-Summary"),
+
+    getAccountSummary : () => api.get("/Transactions/Account-Summary"),
+
+    getMonthlySummary : () => api.get("/Transactions/Monthly-Summary")
 }
