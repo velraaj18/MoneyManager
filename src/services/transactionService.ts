@@ -10,7 +10,7 @@ export const transactionService = {
 
     delete : (id : number) => api.delete(`/Transactions/${id}`),
 
-    getCategorySummary : () => api.get("/Transactions/Category-Summary"),
+    getCategorySummary : (startDate: Date, endDate: Date) => api.get("/Transactions/Category-Summary", {params : {startDate, endDate}}),
 
     getAccountSummary : () => api.get("/Transactions/Account-Summary"),
 

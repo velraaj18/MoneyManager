@@ -1,30 +1,17 @@
 import { Chart } from "primereact/chart";
-import { useEffect, useState } from "react";
-import { transactionService } from "../../services/transactionService";
-import type { TransactionCategorySummary } from "../../types/Transaction";
 
-export const CategoryExpenseChart = () => {
-  const [chartData, setChartData] = useState({});
+export const CategoryExpenseChart = ({ data }: any) => {
 
-  useEffect(() => {
-    transactionService.getCategorySummary().then((res) => {
-      const data: TransactionCategorySummary[] = res.data.data;
+  const filtered = data.filter((x:any) => x.categoryName !== "Income");
 
-      const filtered = data.filter(x => x.categoryName !== "Income");
+  const chartData = {
+    labels: filtered.map((x:any) => x.categoryName),
+    datasets: [
+      {
+        data: filtered.map((x:any) => x.totalAmount)
+      }
+    ]
+  };
 
-      const labels = filtered.map(x => x.categoryName);
-      const amounts = filtered.map(x => x.totalAmount);
-
-      setChartData({
-        labels: labels,
-        datasets: [
-          {
-            data: amounts,
-          }
-        ]
-      });
-    });
-  }, []);
-
-  return <Chart type="pie" data={chartData} className="w-full md:w-30rem" />;
+  return <Chart type="pie" data={chartData} className="w-full md:w-30rem"/>;
 };

@@ -63,11 +63,12 @@ const TransactionModal = ({
 
     if (transaction) {
       await transactionService.update(payload, transaction.transactionUID);
+      onSave?.(); // refetch AFTER API finished
     } else {
       await transactionService.post(payload);
+      onSave?.(); // refetch AFTER API finished
     }
 
-    onSave?.(); // refetch AFTER API finished
     setVisible(false);
   };
 
@@ -112,8 +113,6 @@ const TransactionModal = ({
         setAccounts(mapped);
       }));
   }, []);
-
-  
 
   return (
     <Dialog
