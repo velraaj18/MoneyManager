@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Transactions from "./pages/Transactions"
 import { Accounts } from "./pages/Accounts"
 import Categories from "./pages/Categories"
+import Login from "./pages/Login"
+import Register from "./pages/Register"
 
 const App = () => {
   return(
@@ -14,6 +16,8 @@ const App = () => {
 
       <BrowserRouter>
         <Routes>
+          <Route element={<Login/>} path="/login"/>
+          <Route element={<Register/>} path="/register"/>
           <Route element={<DashboardLayout/>}>
             <Route element={<Dashboard/>} path="/"/>
             <Route element={<Transactions/>} path="/transactions"/>
