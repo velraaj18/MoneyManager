@@ -81,7 +81,7 @@ export default function RecentTransactions({
   ];
 
   // Handle filters
-  const filteredTransactions = transactions.filter(
+  const filteredTransactions = (transactions?? []).filter(
     (t) =>
       (!selectedCategory ||
         t.categoryId === selectedCategory) &&

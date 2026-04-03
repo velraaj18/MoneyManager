@@ -20,11 +20,11 @@ const Transactions = () => {
     fetchTransactions();
   }, []);
 
-  const income = transactions
+  const income = (transactions ?? [])
     .filter((x) => x.category === "Income")
     .reduce((sum, y) => sum + Number(y.amount), 0);
 
-  const expense = transactions
+  const expense = (transactions ?? [])
     .filter((x) => x.category !== "Income")
     .reduce((sum, y) => sum + Number(y.amount), 0);
 
