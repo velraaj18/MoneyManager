@@ -9,7 +9,14 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
-    await authService.login({ email, password });
+    const res = await authService.login({ email, password });
+    const {refreshToken, token} = res.data.data;
+
+    // Get the accessToken and refreshToken from the API and store in the local storage.
+    localStorage.setItem("accessToken", token);
+    localStorage.setItem("refreshToken", refreshToken);
+
+    window.location.href = "/";
   };
 
   return (

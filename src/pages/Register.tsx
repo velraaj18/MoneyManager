@@ -9,7 +9,9 @@ export default function Register() {
   const [password, setPassword] = useState("");
 
   const handleRegister = async () => {
-    await authService.register({ email, password });
+    await authService.register({ email, password }).then((res) => {
+      console.log(res.data);
+    });
   };
 
   return (
