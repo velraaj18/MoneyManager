@@ -8,27 +8,36 @@ interface Props {
 
 const Navbar = ({ onMenuClick }: Props) => {
   const start = (
-    <div className="flex align-items-center gap-3">
+    <div className="flex align-items-center gap-3 navbar-start">
       <Button
         icon="pi pi-bars"
-        className="p-button-text lg:hidden"
+        className="p-button-text p-button-rounded navbar-menu-button lg:hidden"
         onClick={onMenuClick}
       />
 
-      <span className="text-xl font-bold text-primary">
+      <span className="navbar-brand">
         Money Manager
       </span>
     </div>
   );
 
   const end = (
-    <div className="flex align-items-center gap-3">
-      <Button icon="pi pi-bell" text rounded />
-      <FaUserCircle size={24} />
+    <div className="flex align-items-center gap-3 navbar-end">
+      <Button icon="pi pi-bell" text rounded className="navbar-icon-button" />
+      <div className="navbar-user">
+        <FaUserCircle size={24} />
+      </div>
     </div>
   );
 
-  return <Menubar start={start} end={end} pt={{button : {className : "hidden"} } }/>;
+  return (
+    <Menubar
+      start={start}
+      end={end}
+      className="app-navbar"
+      pt={{ button: { className: "hidden" } }}
+    />
+  );
 };
 
 export default Navbar;

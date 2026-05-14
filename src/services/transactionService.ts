@@ -14,5 +14,5 @@ export const transactionService = {
 
     getAccountSummary : () => api.get("/Transactions/Account-Summary"),
 
-    getMonthlySummary : () => api.get("/Transactions/Monthly-Summary")
+    getMonthlySummary : () => api.get("/Transactions/Month-Summary")
 }

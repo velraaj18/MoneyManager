@@ -30,8 +30,8 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="flex justify-content-center">
-      <PanelMenu model={items} className="w-full md:w-20rem"/>
+    <div className="app-sidebar">
+      <PanelMenu model={items} className="app-sidebar-menu w-full" />
     </div>
   );
 };
