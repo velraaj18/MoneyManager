@@ -5,6 +5,7 @@ import RecentTransactions from "../components/RecentTransactions";
 import type {
   Transaction,
   TransactionCategorySummary,
+  TransactionMonthSummary,
 } from "../types/Transaction";
 import { transactionService } from "../services/transactionService";
 import { CategoryExpenseChart } from "../components/CustomCharts/CategoryExpenseChart";
@@ -51,7 +52,7 @@ const Dashboard = () => {
   const [categorySummary, setCategorySummary] = useState<
     TransactionCategorySummary[]
   >([]);
-  const [monthlySummary, setMonthlySummary] = useState<any[]>([]);
+  const [monthlySummary, setMonthlySummary] = useState<TransactionMonthSummary[]>([]);
   const [accountSummary, setAccountSummary] = useState<any[]>([]);
   const [period, setPeriod] = useState("thisMonth");
   const [loadingTransactions, setLoadingTransactions] = useState(true);

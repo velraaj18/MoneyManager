@@ -1,7 +1,10 @@
 import { Chart } from "primereact/chart";
+import { TransactionTypeCode } from "../../enums/TransactionTypeCode";
 
 export const CategoryExpenseChart = ({ data }: any) => {
-  const filtered = data.filter((x: any) => x.categoryName !== "Income");
+  const filtered = data.filter(
+    (x: any) => x.transactionTypeCode === TransactionTypeCode.Expense,
+  );
 
   const chartData = {
     labels: filtered.map((x: any) => x.categoryName),

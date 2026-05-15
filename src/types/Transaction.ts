@@ -1,3 +1,4 @@
+import Transactions from '../pages/Transactions';
 export interface Transaction{
     transactionUID : number,
     date : string,
@@ -19,5 +20,18 @@ export interface CreateTrasactionRequest {
 
 export interface TransactionCategorySummary{
     categoryName : string,
+    transactionTypeCode : number,
     totalAmount : number
+}
+
+export interface TransactionMonthSummary {
+  year: number;
+  month: string;
+  transactionType: number;
+  amount: number;
+}
+
+export interface TransactionAccountSummary {
+  accountName: string;
+  totalAmount: number;
 }
