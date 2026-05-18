@@ -6,6 +6,7 @@ import { Accounts } from "./pages/Accounts"
 import Categories from "./pages/Categories"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
+import { ProtectedRoute } from "./auth/ProtectedRoute"
 
 const App = () => {
   return(
@@ -18,11 +19,13 @@ const App = () => {
         <Routes>
           <Route element={<Login/>} path="/login"/>
           <Route element={<Register/>} path="/register"/>
-          <Route element={<DashboardLayout/>}>
+          <Route element={<ProtectedRoute />}>
+            <Route element={<DashboardLayout/>}>
             <Route element={<Dashboard/>} path="/"/>
             <Route element={<Transactions/>} path="/transactions"/>
             <Route element= {<Accounts/>} path="/Accounts"/>
             <Route element= {<Categories/>} path="/Category"/>
+            </Route>
           </Route>
         </Routes>
       </BrowserRouter>

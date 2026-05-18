@@ -4,34 +4,37 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import type { Transaction } from "../types/Transaction";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DeleteConfirmDialog from "./DeleteConfirmDialog";
 import TransactionModal from "./TransactionModal";
 import { Dropdown, type DropdownChangeEvent } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import { InputText } from "primereact/inputtext";
 import { CategoryService } from "../services/categoryService";
-import type { Category } from "../types/Category";
+import type { Category, CategoryResponse } from "../types/Category";
 import { transactionService } from "../services/transactionService";
+import { TransactionTypeCode } from "../enums/TransactionTypeCode";
+import { getTransactionTypeLabel } from "../utils/TransactionTypeHelper";
 
-const amountTemplate = (rowData: any) => {
+const amountTemplate = (rowData: Transaction) => {
   const formatted = rowData.amount.toLocaleString("en-IN");
+  const isIncome = rowData.transactionTypeCode === TransactionTypeCode.Income;
+
   return (
-    <span style={{ color: rowData.category === "Income" ? "green" : "red" }}>
-      ₹ {formatted}
-    </span>
+    <span style={{ color: isIncome ? "green" : "red" }}>₹ {formatted}</span>
   );
+};
+
+const transactionTypeTemplate = (rowData: Transaction) => {
+  return getTransactionTypeLabel(rowData.transactionTypeCode);
 };
 
 type Props = {
   transactions: Transaction[];
-  onSave? : () => void; 
+  onSave?: () => void;
 };
 
-export default function RecentTransactions({
-  transactions,
-  onSave
-}: Props) {
+export default function RecentTransactions({ transactions, onSave }: Props) {
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -71,46 +74,48 @@ export default function RecentTransactions({
   };
 
   const columns = [
-    {field: "transactionUID", header: "TransactionUID", sortable: true },
+    { field: "transactionUID", header: "TransactionUID", sortable: true },
     { field: "date", header: "Date", sortable: true },
     { field: "description", header: "Description" },
     { field: "category", header: "Category" },
+    { field: "transactionTypeCode", header: "Transaction Type", body: transactionTypeTemplate },
     { field: "account", header: "Account" },
     { field: "amount", header: "Amount", body: amountTemplate, sortable: true },
     { field: "actions", header: "Actions", body: actionTemplate },
   ];
 
   // Handle filters
-  const filteredTransactions = (transactions?? []).filter(
-    (t) =>
-      (!selectedCategory ||
-        t.categoryId === selectedCategory) &&
-      (!fromDate || new Date(t.date) >= fromDate) &&
-      (!toDate || new Date(t.date) <= toDate) &&
-      (t.description.toLowerCase().includes(search.toLowerCase()) ||
-        t.category.toLowerCase().includes(search.toLowerCase()) ||
-        t.account.toLowerCase().includes(search.toLowerCase())),
-  );
+  const filteredTransactions = useMemo(() => {
+    return (transactions ?? []).filter(
+      (t) =>
+        (!selectedCategory || t.categoryId === selectedCategory) &&
+        (!fromDate || new Date(t.date) >= fromDate) &&
+        (!toDate || new Date(t.date) <= toDate) &&
+        (t.description.toLowerCase().includes(search.toLowerCase()) ||
+          t.category.toLowerCase().includes(search.toLowerCase()) ||
+          t.account.toLowerCase().includes(search.toLowerCase())),
+    );
+  }, [transactions, selectedCategory, fromDate, toDate, search]);
 
   // Category for dropdown filters
   useEffect(() => {
     CategoryService.getAll().then((res) => {
-      const mapped: Category[] = res.data.data.map((c: any) => ({
+      const mapped: Category[] = res.data.data.map((c: CategoryResponse) => ({
         name: c.categoryName,
-        value: c.categoryUID
-      }))
-  
-      console.log(mapped)
-  
-      setCategories(mapped)
-    })
-  }, [])
+        value: c.categoryUID,
+      }));
 
-    const accept = async () => {
-      if (!selectedId) return;
-      await transactionService.delete(selectedId);
-      onSave?.();
-    };
+      console.log(mapped);
+
+      setCategories(mapped);
+    });
+  }, []);
+
+  const accept = async () => {
+    if (!selectedId) return;
+    await transactionService.delete(selectedId);
+    onSave?.();
+  };
 
   return (
     <div className="card">

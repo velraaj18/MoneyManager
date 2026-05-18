@@ -9,15 +9,25 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
+  try {
     const res = await authService.login({ email, password });
-    const {refreshToken, token} = res.data.data;
 
-    // Get the accessToken and refreshToken from the API and store in the local storage.
+    if (!res.data.data) {
+      alert(res.data.message);
+      return;
+    }
+    
+    const { refreshToken, token } = res.data.data;
+
     localStorage.setItem("accessToken", token);
     localStorage.setItem("refreshToken", refreshToken);
 
     window.location.href = "/";
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong");
+  }
+};
 
   return (
     <div className="flex justify-content-center align-items-center min-h-screen">

@@ -6,6 +6,7 @@ import RecentTransactions from "../components/RecentTransactions";
 import type { Transaction } from "../types/Transaction";
 import { Card } from "primereact/card";
 import { transactionService } from "../services/transactionService";
+import { TransactionTypeCode } from "../enums/TransactionTypeCode";
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -21,11 +22,14 @@ const Transactions = () => {
   }, []);
 
   const income = (transactions ?? [])
-    .filter((x) => x.category === "Income")
+    .filter((x) => x.transactionTypeCode === TransactionTypeCode.Income)
     .reduce((sum, y) => sum + Number(y.amount), 0);
 
+    console.log(income);
+    
+
   const expense = (transactions ?? [])
-    .filter((x) => x.category !== "Income")
+    .filter((x) => x.transactionTypeCode === TransactionTypeCode.Expense)
     .reduce((sum, y) => sum + Number(y.amount), 0);
 
   const balance = income - expense;
