@@ -12,6 +12,7 @@ import { CategoryExpenseChart } from "../components/CustomCharts/CategoryExpense
 import { IncomeExpenseChart } from "../components/CustomCharts/IncomeExpenseChart";
 import { MonthlySummaryChart } from "../components/CustomCharts/MonthlySummaryChart";
 import { AccountSummaryChart } from "../components/CustomCharts/AccountSummaryChart";
+import { TransactionTypeCode } from "../enums/TransactionTypeCode";
 
 const periodOptions = [
   { label: "This Month", value: "thisMonth" },
@@ -52,7 +53,9 @@ const Dashboard = () => {
   const [categorySummary, setCategorySummary] = useState<
     TransactionCategorySummary[]
   >([]);
-  const [monthlySummary, setMonthlySummary] = useState<TransactionMonthSummary[]>([]);
+  const [monthlySummary, setMonthlySummary] = useState<
+    TransactionMonthSummary[]
+  >([]);
   const [accountSummary, setAccountSummary] = useState<any[]>([]);
   const [period, setPeriod] = useState("thisMonth");
   const [loadingTransactions, setLoadingTransactions] = useState(true);
@@ -131,19 +134,31 @@ const Dashboard = () => {
     (acc, tx) => {
       const amount = Number(tx.amount) || 0;
 
-      if (amount >= 0) {
-        acc.income += amount;
-      } else {
-        acc.expenses += Math.abs(amount);
+      switch (tx.transactionTypeCode) {
+        case TransactionTypeCode.Income:
+          acc.income += amount;
+          acc.balance += amount;
+          break;
+
+        case TransactionTypeCode.Expense:
+          acc.expenses += amount;
+          acc.balance -= amount;
+          break;
+
+        case TransactionTypeCode.Savings:
+          acc.savings += amount;
+          break;
       }
 
-      acc.balance += amount;
       return acc;
     },
-    { income: 0, expenses: 0, balance: 0 }
+    {
+      income: 0,
+      expenses: 0,
+      savings: 0,
+      balance: 0,
+    },
   );
-
-  const savings = totals.balance - totals.expenses;
 
   const metrics = [
     {
@@ -166,7 +181,7 @@ const Dashboard = () => {
     },
     {
       title: "Savings",
-      value: savings,
+      value: totals.savings,
       icon: "pi-chart-line",
       tone: "metric-savings",
     },

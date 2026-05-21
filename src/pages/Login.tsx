@@ -23,6 +23,7 @@ export default function Login() {
     localStorage.setItem("refreshToken", refreshToken);
 
     window.location.href = "/";
+    
   } catch (err) {
     console.error(err);
     alert("Something went wrong");

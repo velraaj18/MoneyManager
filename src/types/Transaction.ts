@@ -26,6 +26,7 @@ export interface TransactionCategorySummary{
 
 export interface TransactionMonthSummary {
   year: number;
+  monthNumber: number;
   month: string;
   transactionType: number;
   amount: number;

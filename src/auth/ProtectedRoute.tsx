@@ -37,16 +37,12 @@ export const ProtectedRoute = () => {
 
       try {
         const res = await authService.refreshToken(refreshToken);
-        const data = res.data?.data ?? res.data;
-        const nextAccessToken = data?.token ?? data?.accessToken ?? data?.access_token;
-        const nextRefreshToken = data?.refreshToken ?? data?.refresh_token ?? refreshToken;
 
-        if (!nextAccessToken) {
-          throw new Error("Missing access token in refresh response");
-        }
+        const data = res.data.data;
 
-        localStorage.setItem("accessToken", nextAccessToken);
-        localStorage.setItem("refreshToken", nextRefreshToken);
+        localStorage.setItem("accessToken", data.token);
+        localStorage.setItem("refreshToken", data.refreshToken);
+
         setIsAllowed(true);
       } catch {
         localStorage.removeItem("accessToken");

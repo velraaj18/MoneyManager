@@ -7,28 +7,45 @@ type Props = {
 };
 
 export const MonthlySummaryChart = ({ data }: Props) => {
+  const sortedData = [...data].sort((a, b) => {
+    if (a.year !== b.year) {
+      return a.year - b.year;
+    }
 
-  const labels = [...new Set(data.map(x => x.month))];
+    return a.monthNumber - b.monthNumber;
+  });
 
-  const incomeData = labels.map(month =>
-    data
+  const labels = [...new Set(sortedData.map((x) => `${x.month} ${x.year}`))];
+
+  const incomeData = labels.map((label) => {
+    return sortedData
       .filter(
-        x =>
-          x.month === month &&
-          x.transactionType === TransactionTypeCode.Income
+        (x) =>
+          `${x.month} ${x.year}` === label &&
+          x.transactionType === TransactionTypeCode.Income,
       )
-      .reduce((sum, x) => sum + x.amount, 0)
-  );
+      .reduce((sum, x) => sum + x.amount, 0);
+  });
 
-  const expenseData = labels.map(month =>
-    data
+  const expenseData = labels.map((label) => {
+    return sortedData
       .filter(
-        x =>
-          x.month === month &&
-          x.transactionType === TransactionTypeCode.Expense
+        (x) =>
+          `${x.month} ${x.year}` === label &&
+          x.transactionType === TransactionTypeCode.Expense,
       )
-      .reduce((sum, x) => sum + x.amount, 0)
-  );
+      .reduce((sum, x) => sum + x.amount, 0);
+  });
+
+  const savingsData = labels.map((label) => {
+    return sortedData
+      .filter(
+        (x) =>
+          `${x.month} ${x.year}` === label &&
+          x.transactionType === TransactionTypeCode.Savings,
+      )
+      .reduce((sum, x) => sum + x.amount, 0);
+  });
 
   const chartData = {
     labels,
@@ -37,23 +54,49 @@ export const MonthlySummaryChart = ({ data }: Props) => {
         label: "Income",
         data: incomeData,
         borderColor: "#22c55e",
-        backgroundColor: "rgba(34, 197, 94, 0.18)",
-        tension: 0.35,
+        backgroundColor: "rgba(34, 197, 94, 0.2)",
+        fill: true,
+        tension: 0.4,
       },
       {
         label: "Expense",
         data: expenseData,
         borderColor: "#ef4444",
-        backgroundColor: "rgba(239, 68, 68, 0.18)",
-        tension: 0.35,
+        backgroundColor: "rgba(239, 68, 68, 0.2)",
+        fill: true,
+        tension: 0.4,
+      },
+      {
+        label: "Savings",
+        data: savingsData,
+        borderColor: "#3b82f6",
+        backgroundColor: "rgba(59, 130, 246, 0.2)",
+        fill: true,
+        tension: 0.4,
       },
     ],
   };
 
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
   return (
     <Chart
-      type="line"
+      type={labels.length > 1 ? "line" : "bar"}
       data={chartData}
+      options={options}
       className="dashboard-chart"
     />
   );
