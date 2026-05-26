@@ -23,10 +23,7 @@ const Transactions = () => {
 
   const income = (transactions ?? [])
     .filter((x) => x.transactionTypeCode === TransactionTypeCode.Income)
-    .reduce((sum, y) => sum + Number(y.amount), 0);
-
-    console.log(income);
-    
+    .reduce((sum, y) => sum + Number(y.amount), 0);   
 
   const expense = (transactions ?? [])
     .filter((x) => x.transactionTypeCode === TransactionTypeCode.Expense)

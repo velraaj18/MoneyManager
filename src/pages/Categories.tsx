@@ -1,11 +1,19 @@
 import { Button } from "primereact/button";
 import { useEffect, useState } from "react";
-import type { CategoryRequest, CategoryResponse } from "../types/Category";
+import type {
+  Category,
+  CategoryRequest,
+  CategoryResponse,
+} from "../types/Category";
 import { CategoryService } from "../services/categoryService";
 import DynamicTable, { type customColumn } from "../components/DynamicTable";
 import { DynamicModal } from "../components/DynamicModal";
 import { InputText } from "primereact/inputtext";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
+import { getTransactionTypeLabel } from "../utils/TransactionTypeHelper";
+import type { Transaction } from "../types/Transaction";
+import { Dropdown, type DropdownChangeEvent } from "primereact/dropdown";
+import { TransactionTypeCode } from "../enums/TransactionTypeCode";
 
 const Categories = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -14,6 +22,9 @@ const Categories = () => {
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [selectedCategory, setSelectedCategory] =
     useState<CategoryResponse | null>(null);
+    const [selectedTransactionType, setSelectedTransactionType] = useState<
+    number | null
+  >(null);
 
   const [categoryName, setCategoryName] = useState<string>("");
   const [description, setDescription] = useState("");
@@ -33,41 +44,76 @@ const Categories = () => {
 
     setCategoryName(selectedCategory.categoryName);
     setDescription(selectedCategory.description);
+    setSelectedTransactionType(selectedCategory.transactionType);
   }, [selectedCategory]);
 
   const handleSave = async () => {
-    const payload : CategoryRequest = {
-        categoryName : categoryName,
-        description : description
-    }
 
-    if(selectedCategory){
-        await CategoryService.update(selectedCategory.categoryUID, payload );
-    }else{
-        await CategoryService.post(payload);
-    }
-    await loadCategories(); 
-    setModalVisible(false)
-  }
+    if (selectedTransactionType == null) return;
 
-    // Delete dialog accept function
-    const accept = async () => {
-      if (!selectedCategory) return;
-      await CategoryService.delete(selectedCategory.categoryUID);
-      
-      await loadCategories();
+    const payload: CategoryRequest = {
+      categoryName: categoryName,
+      description: description,
+      transactionType: selectedTransactionType
     };
+
+    if (selectedCategory) {
+      await CategoryService.update(selectedCategory.categoryUID, payload);
+    } else {
+      await CategoryService.post(payload);
+    }
+    await loadCategories();
+    setModalVisible(false);
+  };
+
+  // Delete dialog accept function
+  const accept = async () => {
+    if (!selectedCategory) return;
+    await CategoryService.delete(selectedCategory.categoryUID);
+
+    await loadCategories();
+  };
+
+  const transactionTypeTemplate = (rowData: Category) => {
+    return getTransactionTypeLabel(rowData.transactionType);
+  };
+
+  const transactionTypes = Object.entries(TransactionTypeCode)
+    .filter(([key, value]) => value !== 0) // optional -> removes Undefined
+    .map(([key, value]) => ({
+      name: key,
+      value: value,
+    }));
 
   var columns: customColumn[] = [
     { field: "categoryUID", header: "Category UID" },
     { field: "categoryName", header: "Category Name" },
+    {
+      field: "transactionTypeCode",
+      header: "Type",
+      body : transactionTypeTemplate,
+    },
     { field: "description", header: "Description" },
   ];
 
   var content = (
     <div className="flex flex-column gap-3">
       <div className="flex flex-column gap-1">
-        <label>Account Name</label>
+        <label>Transaction Type</label>
+
+        <Dropdown
+          options={transactionTypes}
+          value={selectedTransactionType}
+          onChange={(e: DropdownChangeEvent) => {
+            setSelectedTransactionType(e.value);
+          }}
+          optionLabel="name"
+          optionValue="value"
+          placeholder="Select transaction type"
+        />
+      </div>
+      <div className="flex flex-column gap-1">
+        <label>Category Name</label>
         <InputText
           value={categoryName}
           placeholder="Enter category name"
@@ -164,14 +210,14 @@ const Categories = () => {
         content={content}
       ></DynamicModal>
 
-      <DeleteConfirmDialog message="Do you want to delete?"
-          header="Confirmation"
-          icon="pi pi-exclamation-triangle"
-          visible={deleteModalVisible}
-          setVisibile={setDeleteModalVisible}
-          accept={accept}>
-
-      </DeleteConfirmDialog>
+      <DeleteConfirmDialog
+        message="Do you want to delete?"
+        header="Confirmation"
+        icon="pi pi-exclamation-triangle"
+        visible={deleteModalVisible}
+        setVisibile={setDeleteModalVisible}
+        accept={accept}
+      ></DeleteConfirmDialog>
     </>
   );
 };

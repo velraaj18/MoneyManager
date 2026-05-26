@@ -25,7 +25,6 @@ export default function Login() {
     window.location.href = "/";
     
   } catch (err) {
-    console.error(err);
     alert("Something went wrong");
   }
 };

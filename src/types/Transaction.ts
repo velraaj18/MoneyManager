@@ -15,7 +15,7 @@ export interface CreateTrasactionRequest {
     accountUID : number,
     amount : number,
     description : string,
-    date : Date
+    date : string
 }
 
 export interface TransactionCategorySummary{

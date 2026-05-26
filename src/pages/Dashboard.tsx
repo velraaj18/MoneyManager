@@ -81,12 +81,21 @@ const Dashboard = () => {
     loadTransactions();
   }, []);
 
+  const formatDate = (date: Date) => {
+    return date.toISOString().split("T")[0];
+  };
+
   useEffect(() => {
     const loadSummary = async () => {
       try {
         setLoadingSummary(true);
-        const { start, end } = getDateRange(period);
-        const res = await transactionService.getCategorySummary(start, end);
+        const range = getDateRange(period);
+        const startDate = formatDate(range.start);
+        const endDate = formatDate(range.end);
+        const res = await transactionService.getCategorySummary(
+          startDate,
+          endDate,
+        );
         setCategorySummary(res.data.data);
       } catch {
         setError("Unable to load summary data right now.");

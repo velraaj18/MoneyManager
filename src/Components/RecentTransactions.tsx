@@ -74,7 +74,6 @@ export default function RecentTransactions({ transactions, onSave }: Props) {
   };
 
   const columns = [
-    { field: "transactionUID", header: "TransactionUID", sortable: true },
     { field: "date", header: "Date", sortable: true },
     { field: "description", header: "Description" },
     { field: "category", header: "Category" },
@@ -105,7 +104,7 @@ export default function RecentTransactions({ transactions, onSave }: Props) {
         value: c.categoryUID,
       }));
 
-      console.log(mapped);
+      console.log(res.data.data);
 
       setCategories(mapped);
     });

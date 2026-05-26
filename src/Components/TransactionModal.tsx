@@ -13,6 +13,7 @@ import { CategoryService } from "../services/categoryService";
 import type { Category } from "../types/Category";
 import { AccountService } from "../services/accountService";
 import { transactionService } from "../services/transactionService";
+import { TransactionTypeCode } from "../enums/TransactionTypeCode";
 
 type Props = {
   visible: boolean;
@@ -34,7 +35,10 @@ const TransactionModal = ({
   const [categories, setCategories] = useState<Category[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
 
-  // Populate drop down values for category and account
+  // Populate drop down values for category type, category and account
+  const [selectedTransactionType, setSelectedTransactionType] = useState<
+    number | null
+  >(null);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
 
@@ -47,19 +51,23 @@ const TransactionModal = ({
     setDescription(transaction.description);
     setSelectedCategory(transaction.categoryId);
     setSelectedAccount(transaction.accountId);
-    console.log(transaction.category);
+    setSelectedTransactionType(transaction.transactionTypeCode);
   }, [transaction]);
 
   const handleSave = async () => {
     if (!selectedAccount || !selectedCategory || !amount || !date) return;
+
+    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
     const payload: CreateTrasactionRequest = {
       accountUID: selectedAccount,
       categoryUID: selectedCategory,
       amount: Number(amount),
       description,
-      date: date,
+      date: formattedDate,
     };
+
+    console.log(JSON.stringify(payload));
 
     if (transaction) {
       await transactionService.update(payload, transaction.transactionUID);
@@ -71,6 +79,13 @@ const TransactionModal = ({
 
     setVisible(false);
   };
+
+  const transactionTypes = Object.entries(TransactionTypeCode)
+    .filter(([key, value]) => value !== 0) // optional -> removes Undefined
+    .map(([key, value]) => ({
+      name: key,
+      value: value,
+    }));
 
   const modalHeader = (
     <div className="flex align-items-center gap-2">
@@ -101,8 +116,8 @@ const TransactionModal = ({
       const mapped: Category[] = res.data.data.map((c: any) => ({
         name: c.categoryName,
         value: c.categoryUID,
+        transactionType: c.transactionType,
       }));
-      console.log(mapped);
       setCategories(mapped);
     }),
       AccountService.getAll().then((res) => {
@@ -113,6 +128,10 @@ const TransactionModal = ({
         setAccounts(mapped);
       }));
   }, []);
+
+  const filteredCategories = categories.filter(
+    (x) => x.transactionType === selectedTransactionType,
+  );
 
   return (
     <Dialog
@@ -146,9 +165,27 @@ const TransactionModal = ({
         </div>
 
         <div className="flex flex-column gap-1">
+          <label>Transaction Type</label>
+
+          <Dropdown
+            options={transactionTypes}
+            value={selectedTransactionType}
+            onChange={(e: DropdownChangeEvent) => {
+              setSelectedTransactionType(e.value);
+
+              // reset category when type changes
+              setSelectedCategory(null);
+            }}
+            optionLabel="name"
+            optionValue="value"
+            placeholder="Select transaction type"
+          />
+        </div>
+
+        <div className="flex flex-column gap-1">
           <label>Category</label>
           <Dropdown
-            options={categories}
+            options={filteredCategories}
             value={selectedCategory}
             onChange={(e: DropdownChangeEvent) => setSelectedCategory(e.value)}
             optionLabel="name"
