@@ -60,8 +60,8 @@ const TransactionModal = ({
     const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
     const payload: CreateTrasactionRequest = {
-      accountUID: selectedAccount,
-      categoryUID: selectedCategory,
+      accountId: selectedAccount,
+      categoryId: selectedCategory,
       amount: Number(amount),
       description,
       date: formattedDate,

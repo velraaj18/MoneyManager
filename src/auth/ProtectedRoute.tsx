@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { authService } from "../services/authService";
 
@@ -13,12 +13,15 @@ const isTokenExpired = (token: string) => {
   }
 };
 
+const hasValidated = useRef(false);
+
 export const ProtectedRoute = () => {
   const location = useLocation();
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [isAllowed, setIsAllowed] = useState(false);
 
   useEffect(() => {
+    if(hasValidated.current) return;
     const validateSession = async () => {
       const accessToken = localStorage.getItem("accessToken");
       const refreshToken = localStorage.getItem("refreshToken");
@@ -52,7 +55,7 @@ export const ProtectedRoute = () => {
         setCheckingAuth(false);
       }
     };
-
+    hasValidated.current = true;
     validateSession();
   }, []);
 

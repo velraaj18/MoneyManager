@@ -11,8 +11,8 @@ export interface Transaction {
 }
 
 export interface CreateTrasactionRequest {
-    categoryUID : number,
-    accountUID : number,
+    categoryId : number,
+    accountId : number,
     amount : number,
     description : string,
     date : string

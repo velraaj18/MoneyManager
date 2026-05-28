@@ -18,9 +18,9 @@ const Sidebar = () => {
       url: "/accounts"
     },
     {
-      label: "Reports",
+      label: "Budgets",
       icon: "pi pi-chart-bar",
-      url: "/reports"
+      url: "/budgets"
     },
     {
       label: "Category",

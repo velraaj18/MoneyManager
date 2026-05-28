@@ -73,7 +73,6 @@ export const Accounts = () => {
   // Columns for the data table
   // the field should match the api response fields exactly [case sensitive]
   var columns: customColumn[] = [
-    { field: "accountUID", header: "Account UID" },
     { field: "accountName", header: "Account Name" },
     { field: "description", header: "Description" },
     { field: "action", header: "Action", body: actionTemplate },

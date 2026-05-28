@@ -22,7 +22,7 @@ const Categories = () => {
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [selectedCategory, setSelectedCategory] =
     useState<CategoryResponse | null>(null);
-    const [selectedTransactionType, setSelectedTransactionType] = useState<
+  const [selectedTransactionType, setSelectedTransactionType] = useState<
     number | null
   >(null);
 
@@ -48,13 +48,12 @@ const Categories = () => {
   }, [selectedCategory]);
 
   const handleSave = async () => {
-
     if (selectedTransactionType == null) return;
 
     const payload: CategoryRequest = {
       categoryName: categoryName,
       description: description,
-      transactionType: selectedTransactionType
+      transactionType: selectedTransactionType,
     };
 
     if (selectedCategory) {
@@ -86,12 +85,11 @@ const Categories = () => {
     }));
 
   var columns: customColumn[] = [
-    { field: "categoryUID", header: "Category UID" },
     { field: "categoryName", header: "Category Name" },
     {
       field: "transactionTypeCode",
       header: "Type",
-      body : transactionTypeTemplate,
+      body: transactionTypeTemplate,
     },
     { field: "description", header: "Description" },
   ];
