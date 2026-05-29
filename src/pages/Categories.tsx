@@ -11,7 +11,6 @@ import { DynamicModal } from "../components/DynamicModal";
 import { InputText } from "primereact/inputtext";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import { getTransactionTypeLabel } from "../utils/TransactionTypeHelper";
-import type { Transaction } from "../types/Transaction";
 import { Dropdown, type DropdownChangeEvent } from "primereact/dropdown";
 import { TransactionTypeCode } from "../enums/TransactionTypeCode";
 
