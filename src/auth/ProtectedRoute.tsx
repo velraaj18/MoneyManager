@@ -13,15 +13,19 @@ const isTokenExpired = (token: string) => {
   }
 };
 
-const hasValidated = useRef(false);
-
 export const ProtectedRoute = () => {
   const location = useLocation();
+  const hasValidated = useRef(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [isAllowed, setIsAllowed] = useState(false);
 
   useEffect(() => {
-    if(hasValidated.current) return;
+    if (hasValidated.current) {
+      return;
+    }
+
+    hasValidated.current = true;
+
     const validateSession = async () => {
       const accessToken = localStorage.getItem("accessToken");
       const refreshToken = localStorage.getItem("refreshToken");
@@ -55,7 +59,7 @@ export const ProtectedRoute = () => {
         setCheckingAuth(false);
       }
     };
-    hasValidated.current = true;
+
     validateSession();
   }, []);
 
