@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL : "http://localhost:5188/api"
+    baseURL : "https://moneymanager-api-ajsa.onrender.com/api/"
 });
 
 // Interceptor has 2 types
