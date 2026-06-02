@@ -81,7 +81,7 @@ const TransactionModal = ({
   };
 
   const transactionTypes = Object.entries(TransactionTypeCode)
-    .filter(([key, value]) => value !== 0) // optional -> removes Undefined
+    .filter(([, value]) => value !== 0) // optional -> removes Undefined
     .map(([key, value]) => ({
       name: key,
       value: value,

@@ -52,7 +52,6 @@ const Budgets = () => {
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [selectedBudgetId, setSelectedBudgetId] = useState<number | undefined>();
   const [modalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
@@ -63,7 +62,6 @@ const Budgets = () => {
 
   const loadData = async () => {
     try {
-      setLoading(true);
       const [budgetRes, categoryRes] = await Promise.all([
         BudgetService.getAll(),
         CategoryService.getAll(),
@@ -78,7 +76,6 @@ const Budgets = () => {
     } catch {
       setError("Unable to load budgets right now.");
     } finally {
-      setLoading(false);
     }
   };
 
