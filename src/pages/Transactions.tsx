@@ -1,15 +1,51 @@
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
+import { Dropdown } from "primereact/dropdown";
 import { useEffect, useState } from "react";
-import TransactionModal from "../components/TransactionModal";
 import RecentTransactions from "../components/RecentTransactions";
-import type { Transaction } from "../types/Transaction";
-import { transactionService } from "../services/transactionService";
+import TransactionModal from "../components/TransactionModal";
 import { TransactionTypeCode } from "../enums/TransactionTypeCode";
+import { transactionService } from "../services/transactionService";
+import type { Transaction } from "../types/Transaction";
+
+const periodOptions = [
+  { label: "This Month", value: "thisMonth" },
+  { label: "Last Month", value: "lastMonth" },
+  { label: "Last 6 Months", value: "last6Months" },
+  { label: "Annual", value: "annual" },
+];
+
+const getDateRange = (period: string) => {
+  const now = new Date();
+
+  if (period === "thisMonth") {
+    return {
+      start: new Date(now.getFullYear(), now.getMonth(), 1),
+      end: new Date(),
+    };
+  }
+
+  if (period === "lastMonth") {
+    return {
+      start: new Date(now.getFullYear(), now.getMonth() - 1, 1),
+      end: new Date(now.getFullYear(), now.getMonth(), 0),
+    };
+  }
+
+  if (period === "last6Months") {
+    return {
+      start: new Date(now.getFullYear(), now.getMonth() - 5, 1),
+      end: new Date(),
+    };
+  }
+
+  return { start: new Date(now.getFullYear(), 0, 1), end: new Date() };
+};
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [visible, setVisible] = useState<boolean>(false);
+  const [period, setPeriod] = useState("thisMonth");
 
   const fetchTransactions = async () => {
     const res = await transactionService.getall();
@@ -20,11 +56,30 @@ const Transactions = () => {
     fetchTransactions();
   }, []);
 
-  const income = (transactions ?? [])
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const selectedRange = getDateRange(period);
+
+  const filteredTransactions = transactions.filter((tx) => {
+    const txDate = tx.date;
+
+    return (
+      txDate >= formatDate(selectedRange.start) &&
+      txDate <= formatDate(selectedRange.end)
+    );
+  });
+
+  const income = filteredTransactions
     .filter((x) => x.transactionTypeCode === TransactionTypeCode.Income)
     .reduce((sum, y) => sum + Number(y.amount), 0);
 
-  const expense = (transactions ?? [])
+  const expense = filteredTransactions
     .filter((x) => x.transactionTypeCode === TransactionTypeCode.Expense)
     .reduce((sum, y) => sum + Number(y.amount), 0);
 
@@ -42,7 +97,17 @@ const Transactions = () => {
         </div>
 
         <div className="dashboard-toolbar">
-          <Button className="flex align-items-center gap-2 p-2" onClick={() => setVisible(true)}>
+          <Dropdown
+            value={period}
+            options={periodOptions}
+            onChange={(e) => setPeriod(e.value)}
+            placeholder="Select Period"
+            className="dashboard-period"
+          />
+          <Button
+            className="flex align-items-center gap-2 p-2"
+            onClick={() => setVisible(true)}
+          >
             <i className="pi pi-plus"></i>
             <span className="hidden md:block">Add Transaction</span>
           </Button>
@@ -56,7 +121,9 @@ const Transactions = () => {
               <div className="metric-card">
                 <div>
                   <span className="metric-label">Income</span>
-                  <div className="metric-value">₹ {income}</div>
+                  <div className="metric-value">
+                    INR {income.toLocaleString("en-IN")}
+                  </div>
                 </div>
                 <span className="metric-icon pi pi-arrow-up" />
               </div>
@@ -68,7 +135,9 @@ const Transactions = () => {
               <div className="metric-card">
                 <div>
                   <span className="metric-label">Expenses</span>
-                  <div className="metric-value">₹ {expense}</div>
+                  <div className="metric-value">
+                    INR {expense.toLocaleString("en-IN")}
+                  </div>
                 </div>
                 <span className="metric-icon pi pi-arrow-down" />
               </div>
@@ -80,7 +149,9 @@ const Transactions = () => {
               <div className="metric-card">
                 <div>
                   <span className="metric-label">Balance</span>
-                  <div className="metric-value">₹ {balance}</div>
+                  <div className="metric-value">
+                    INR {balance.toLocaleString("en-IN")}
+                  </div>
                 </div>
                 <span className="metric-icon pi pi-wallet" />
               </div>
@@ -90,7 +161,10 @@ const Transactions = () => {
       </div>
 
       <Card className="dashboard-panel dashboard-panel-wrapper">
-        <RecentTransactions transactions={transactions} onSave={fetchTransactions} />
+        <RecentTransactions
+          transactions={filteredTransactions}
+          onSave={fetchTransactions}
+        />
       </Card>
 
       <TransactionModal

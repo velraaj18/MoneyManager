@@ -29,6 +29,13 @@ const monthOptions = [
   { label: "December", value: 12 },
 ];
 
+const periodOptions = [
+  { label: "This Month", value: "thisMonth" },
+  { label: "Last Month", value: "lastMonth" },
+  { label: "Last 6 Months", value: "last6Months" },
+  { label: "Annual", value: "annual" },
+];
+
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 6 }, (_, index) => ({
   label: `${currentYear - 2 + index}`,
@@ -46,6 +53,46 @@ const getBudgetSpent = (budget: BudgetRow) =>
     0,
   );
 
+const getDateRange = (period: string) => {
+  const now = new Date();
+
+  if (period === "thisMonth") {
+    return {
+      startMonth: now.getMonth() + 1,
+      startYear: now.getFullYear(),
+      endMonth: now.getMonth() + 1,
+      endYear: now.getFullYear(),
+    };
+  }
+
+  if (period === "lastMonth") {
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    return {
+      startMonth: lastMonth.getMonth() + 1,
+      startYear: lastMonth.getFullYear(),
+      endMonth: lastMonth.getMonth() + 1,
+      endYear: lastMonth.getFullYear(),
+    };
+  }
+
+  if (period === "last6Months") {
+    const start = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+    return {
+      startMonth: start.getMonth() + 1,
+      startYear: start.getFullYear(),
+      endMonth: now.getMonth() + 1,
+      endYear: now.getFullYear(),
+    };
+  }
+
+  return {
+    startMonth: 1,
+    startYear: now.getFullYear(),
+    endMonth: 12,
+    endYear: now.getFullYear(),
+  };
+};
+
 const Budgets = () => {
   const [budgets, setBudgets] = useState<BudgetRow[]>([]);
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
@@ -57,6 +104,7 @@ const Budgets = () => {
   const [month, setMonth] = useState<number | null>(new Date().getMonth() + 1);
   const [year, setYear] = useState<number | null>(currentYear);
   const [search, setSearch] = useState("");
+  const [period, setPeriod] = useState("thisMonth");
 
   const loadData = async () => {
     try {
@@ -97,10 +145,25 @@ const Budgets = () => {
     setYear(selectedBudget.year ?? null);
   }, [selectedBudget]);
 
+  const selectedRange = getDateRange(period);
+  const visibleBudgets = budgets.filter((budget) => {
+    const categoryName = budget.categoryName?.toLowerCase() ?? "";
+    const query = search.trim().toLowerCase();
+    const budgetMonth = Number(budget.month ?? 0);
+    const budgetYear = Number(budget.year ?? 0);
+    const inRange =
+      (budgetYear > selectedRange.startYear ||
+        (budgetYear === selectedRange.startYear && budgetMonth >= selectedRange.startMonth)) &&
+      (budgetYear < selectedRange.endYear ||
+        (budgetYear === selectedRange.endYear && budgetMonth <= selectedRange.endMonth));
+
+    return (!query || categoryName.includes(query)) && inRange;
+  });
+
   const totals = useMemo(() => {
-    const totalBudget = budgets.reduce((sum, budget) => sum + Number(budget.spendLimit ?? 0), 0);
-    const totalSpent = budgets.reduce((sum, budget) => sum + getBudgetSpent(budget), 0);
-    const totalRemaining = budgets.reduce((sum, budget) => sum + Number(budget.amountRemaining ?? 0), 0);
+    const totalBudget = visibleBudgets.reduce((sum, budget) => sum + Number(budget.spendLimit ?? 0), 0);
+    const totalSpent = visibleBudgets.reduce((sum, budget) => sum + getBudgetSpent(budget), 0);
+    const totalRemaining = visibleBudgets.reduce((sum, budget) => sum + Number(budget.amountRemaining ?? 0), 0);
 
     return {
       totalBudget,
@@ -108,13 +171,7 @@ const Budgets = () => {
       totalRemaining,
       utilization: totalBudget ? Math.min((totalSpent / totalBudget) * 100, 100) : 0,
     };
-  }, [budgets]);
-
-  const visibleBudgets = budgets.filter((budget) => {
-    const categoryName = budget.categoryName?.toLowerCase() ?? "";
-    const query = search.trim().toLowerCase();
-    return !query || categoryName.includes(query);
-  });
+  }, [visibleBudgets]);
 
   const handleSave = async () => {
     if (selectedCategoryId == null || spendLimit == null || month == null || year == null) return;
@@ -260,6 +317,13 @@ const Budgets = () => {
         </div>
 
         <div className="dashboard-toolbar">
+          <Dropdown
+            value={period}
+            options={periodOptions}
+            onChange={(e) => setPeriod(e.value)}
+            placeholder="Select Period"
+            className="dashboard-period"
+          />
           <InputText value={search} placeholder="Search categories" onChange={(e) => setSearch(e.target.value)} />
           <Button className="flex align-items-center gap-2 p-2" onClick={handleAddClick}>
             <i className="pi pi-plus"></i>

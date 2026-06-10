@@ -89,6 +89,17 @@ const Dashboard = () => {
     return `${year}-${month}-${day}`;
   };
 
+  const selectedRange = getDateRange(period);
+
+  const filteredTransactions = transactions.filter((tx) => {
+    const txDate = tx.date;
+
+    return (
+      txDate >= formatDate(selectedRange.start) &&
+      txDate <= formatDate(selectedRange.end)
+    );
+  });
+
   useEffect(() => {
     const loadSummary = async () => {
       try {
@@ -151,7 +162,7 @@ const Dashboard = () => {
     loadAccounts();
   }, [period]);
 
-  const totals = transactions.reduce(
+  const totals = filteredTransactions.reduce(
     (acc, tx) => {
       const amount = Number(tx.amount) || 0;
 
@@ -310,7 +321,7 @@ const Dashboard = () => {
               Loading recent transactions...
             </div>
           ) : (
-            <RecentTransactions transactions={transactions} />
+            <RecentTransactions transactions={filteredTransactions} />
           )}
         </Card>
       </div>
