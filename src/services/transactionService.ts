@@ -12,7 +12,9 @@ export const transactionService = {
 
     getCategorySummary : (startDate: string, endDate: string) => api.get("/Transactions/Category-Summary", {params : {startDate, endDate}}),
 
-    getAccountSummary : () => api.get("/Transactions/Account-Summary"),
+    getAccountSummary : (startDate?: string, endDate?: string) =>
+        api.get("/Transactions/Account-Summary", { params: { startDate, endDate } }),
 
-    getMonthlySummary : () => api.get("/Transactions/Month-Summary")
+    getMonthlySummary : (startDate?: string, endDate?: string) =>
+        api.get("/Transactions/Month-Summary", { params: { startDate, endDate } })
 }

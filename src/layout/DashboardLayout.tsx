@@ -28,7 +28,7 @@ const DashboardLayout = () => {
         </Sidebar>
 
         {/* Content */}
-        <div className="dashboard-content flex-1 p-4 overflow-auto">
+        <div className="dashboard-content flex-1 p-4 lg:p-5 overflow-auto">
           {/* When using layout routing, the layout must render the child route using Outlet. */}
           <Outlet />
         </div>

@@ -82,15 +82,26 @@ export const MonthlySummaryChart = ({ data }: Props) => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "top",
+        position: "bottom" as const,
+      },
+      tooltip: {
+        mode: "index" as const,
+        intersect: false,
       },
     },
     scales: {
       y: {
         beginAtZero: true,
+        ticks: {
+          callback: (value: string | number) => `INR ${value}`,
+        },
       },
     },
   };
+
+  if (!labels.length) {
+    return <div className="dashboard-loading">No monthly data available.</div>;
+  }
 
   return (
     <Chart

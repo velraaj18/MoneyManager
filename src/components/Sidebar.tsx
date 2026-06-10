@@ -1,6 +1,7 @@
 import { PanelMenu } from "primereact/panelmenu";
 
 const Sidebar = () => {
+
   const items = [
     {
       label: "Dashboard",
@@ -23,14 +24,18 @@ const Sidebar = () => {
       url: "/budgets"
     },
     {
-      label: "Category",
+      label: "Categories",
       icon: "pi pi-bars",
-      url: "/Category"
+      url: "/categories"
     },
   ];
 
   return (
     <div className="app-sidebar">
+      <div className="app-sidebar-header">
+        <div className="app-sidebar-title">Overview</div>
+        <div className="app-sidebar-subtitle">Manage your money with clarity and speed.</div>
+      </div>
       <PanelMenu model={items} className="app-sidebar-menu w-full" />
     </div>
   );

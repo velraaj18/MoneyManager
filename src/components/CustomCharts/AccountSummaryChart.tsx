@@ -14,8 +14,11 @@ type Props = {
 };
 
 export const AccountSummaryChart = ({ data }: Props) => {
-  const labels = data.map((item) => item.accountName ?? item.name ?? item.label ?? "");
-  const values = data.map((item) =>
+  const sorted = [...data].sort(
+    (a, b) => Number(b.totalAmount ?? b.balance ?? b.amount ?? 0) - Number(a.totalAmount ?? a.balance ?? a.amount ?? 0),
+  );
+  const labels = sorted.map((item) => item.accountName ?? item.name ?? item.label ?? "");
+  const values = sorted.map((item) =>
     Number(item.totalAmount ?? item.balance ?? item.amount ?? 0)
   );
 
@@ -23,7 +26,7 @@ export const AccountSummaryChart = ({ data }: Props) => {
     labels,
     datasets: [
       {
-        label: "Account Balance",
+        label: "Transaction Amount",
         data: values,
         backgroundColor: [
           "#1e6fb8",
@@ -37,5 +40,27 @@ export const AccountSummaryChart = ({ data }: Props) => {
     ],
   };
 
-  return <Chart type="bar" data={chartData} className="dashboard-chart" />;
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value: string | number) => `INR ${value}`,
+        },
+      },
+    },
+  };
+
+  if (!sorted.length) {
+    return <div className="dashboard-loading">No account data available.</div>;
+  }
+
+  return <Chart type="bar" data={chartData} options={options} className="dashboard-chart" />;
 };

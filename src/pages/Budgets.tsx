@@ -35,8 +35,7 @@ const years = Array.from({ length: 6 }, (_, index) => ({
   value: currentYear - 2 + index,
 }));
 
-const formatCurrency = (value: number) =>
-  `INR ${value.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+const formatCurrency = (value: number) => `INR ${value.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
 
 const getBudgetSpent = (budget: BudgetRow) =>
   Math.max(
@@ -53,7 +52,6 @@ const Budgets = () => {
   const [selectedBudgetId, setSelectedBudgetId] = useState<number | undefined>();
   const [modalVisible, setModalVisible] = useState(false);
   const [error, setError] = useState("");
-
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [spendLimit, setSpendLimit] = useState<number | null>(null);
   const [month, setMonth] = useState<number | null>(new Date().getMonth() + 1);
@@ -68,14 +66,13 @@ const Budgets = () => {
       ]);
       const budgetData = Array.isArray(budgetRes.data?.data) ? budgetRes.data.data : [];
       const categoryData = Array.isArray(categoryRes.data.data)
-          ? categoryRes.data.data.filter((x: CategoryResponse) => x.transactionType == 1)
-          : [];
+        ? categoryRes.data.data.filter((x: CategoryResponse) => x.transactionType == 1)
+        : [];
 
       setBudgets(budgetData as BudgetRow[]);
       setCategories(categoryData as CategoryResponse[]);
     } catch {
       setError("Unable to load budgets right now.");
-    } finally {
     }
   };
 
@@ -83,9 +80,7 @@ const Budgets = () => {
     loadData();
   }, []);
 
-  const selectedBudget = budgets.find(
-    (x) => (x.budgetUID) === selectedBudgetId,
-  );
+  const selectedBudget = budgets.find((x) => x.budgetUID === selectedBudgetId);
 
   useEffect(() => {
     if (!selectedBudget) {
@@ -103,18 +98,9 @@ const Budgets = () => {
   }, [selectedBudget]);
 
   const totals = useMemo(() => {
-    const totalBudget = budgets.reduce(
-      (sum, budget) => sum + Number(budget.spendLimit ?? 0),
-      0,
-    );
-    const totalSpent = budgets.reduce(
-      (sum, budget) => sum + getBudgetSpent(budget),
-      0,
-    );
-    const totalRemaining = budgets.reduce(
-      (sum, budget) => sum + Number(budget.amountRemaining ?? 0),
-      0,
-    );
+    const totalBudget = budgets.reduce((sum, budget) => sum + Number(budget.spendLimit ?? 0), 0);
+    const totalSpent = budgets.reduce((sum, budget) => sum + getBudgetSpent(budget), 0);
+    const totalRemaining = budgets.reduce((sum, budget) => sum + Number(budget.amountRemaining ?? 0), 0);
 
     return {
       totalBudget,
@@ -131,9 +117,7 @@ const Budgets = () => {
   });
 
   const handleSave = async () => {
-    if (selectedCategoryId == null || spendLimit == null || month == null || year == null) {
-      return;
-    }
+    if (selectedCategoryId == null || spendLimit == null || month == null || year == null) return;
 
     const payload: BudgetRequest = {
       budgetId: selectedBudgetId,
@@ -168,26 +152,10 @@ const Budgets = () => {
 
   const columnsForTable: customColumn[] = [
     { field: "categoryName", header: "Category" },
-    {
-      field: "period",
-      header: "Period",
-      body: (row: BudgetRow) => `${monthLabel(row.month)} ${row.year}`,
-    },
-    {
-      field: "spendLimit",
-      header: "Budget",
-      body: (row: BudgetRow) => formatCurrency(Number(row.spendLimit ?? 0)),
-    },
-    {
-      field: "amountSpent",
-      header: "Spent",
-      body: (row: BudgetRow) => formatCurrency(getBudgetSpent(row)),
-    },
-    {
-      field: "amountRemaining",
-      header: "Remaining",
-      body: (row: BudgetRow) => formatCurrency(Number(row.amountRemaining ?? 0)),
-    },
+    { field: "period", header: "Period", body: (row: BudgetRow) => `${monthLabel(row.month)} ${row.year}` },
+    { field: "spendLimit", header: "Budget", body: (row: BudgetRow) => formatCurrency(Number(row.spendLimit ?? 0)) },
+    { field: "amountSpent", header: "Spent", body: (row: BudgetRow) => formatCurrency(getBudgetSpent(row)) },
+    { field: "amountRemaining", header: "Remaining", body: (row: BudgetRow) => formatCurrency(Number(row.amountRemaining ?? 0)) },
     {
       field: "actions",
       header: "Actions",
@@ -198,14 +166,10 @@ const Budgets = () => {
           text
           onClick={() => {
             const budgetId = row.budgetUID;
-
             if (budgetId == null) {
-              setError(
-                "This budget row does not contain an ID, so edit cannot be saved until the API returns BudgetUID or BudgetId.",
-              );
+              setError("This budget row does not contain an ID, so edit cannot be saved until the API returns BudgetUID or BudgetId.");
               return;
             }
-
             setError("");
             setSelectedBudgetId(budgetId);
             setSelectedCategoryId(row.categoryId ?? null);
@@ -228,14 +192,7 @@ const Budgets = () => {
 
   const modalFooter = (
     <div className="flex align-items-center justify-content-between">
-      <Button
-        label="Cancel"
-        className="p-2"
-        icon="pi pi-times"
-        severity="secondary"
-        text
-        onClick={() => setModalVisible(false)}
-      />
+      <Button label="Cancel" className="p-2" icon="pi pi-times" severity="secondary" text onClick={() => setModalVisible(false)} />
       <Button label="Save" className="p-2" icon="pi pi-check" onClick={handleSave} />
     </div>
   );
@@ -253,7 +210,6 @@ const Budgets = () => {
           onChange={(e: DropdownChangeEvent) => setSelectedCategoryId(e.value)}
         />
       </div>
-
       <div className="flex flex-column gap-1">
         <label>Budget Limit</label>
         <InputNumber
@@ -265,7 +221,6 @@ const Budgets = () => {
           placeholder="Enter budget limit"
         />
       </div>
-
       <div className="grid">
         <div className="col-12 md:col-6 flex flex-column gap-1">
           <label>Month</label>
@@ -278,7 +233,6 @@ const Budgets = () => {
             onChange={(e: DropdownChangeEvent) => setMonth(e.value)}
           />
         </div>
-
         <div className="col-12 md:col-6 flex flex-column gap-1">
           <label>Year</label>
           <Dropdown
@@ -306,11 +260,7 @@ const Budgets = () => {
         </div>
 
         <div className="dashboard-toolbar">
-          <InputText
-            value={search}
-            placeholder="Search categories"
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <InputText value={search} placeholder="Search categories" onChange={(e) => setSearch(e.target.value)} />
           <Button className="flex align-items-center gap-2 p-2" onClick={handleAddClick}>
             <i className="pi pi-plus"></i>
             <span className="hidden md:block">New Budget</span>
@@ -332,7 +282,6 @@ const Budgets = () => {
             </div>
           </Card>
         </div>
-
         <div className="col-12 md:col-4">
           <Card className="metric-card-panel metric-expenses">
             <div className="metric-card">
@@ -344,7 +293,6 @@ const Budgets = () => {
             </div>
           </Card>
         </div>
-
         <div className="col-12 md:col-4">
           <Card className="metric-card-panel metric-income">
             <div className="metric-card">
@@ -358,6 +306,7 @@ const Budgets = () => {
         </div>
       </div>
 
+      <div className="grid">
         <div className="col-12 lg:col-5">
           <Card title="Budget Health" className="dashboard-panel">
             <div className="flex flex-column gap-3">
@@ -374,11 +323,11 @@ const Budgets = () => {
             </div>
           </Card>
         </div>
-
-      <div className="mt-4">
-        <Card title="Budget List" className="dashboard-panel">
-          <DynamicTable value={visibleBudgets} columns={columnsForTable} size="small" />
-        </Card>
+        <div className="col-12 lg:col-7">
+          <Card title="Budget List" className="dashboard-panel">
+            <DynamicTable value={visibleBudgets} columns={columnsForTable} size="small" />
+          </Card>
+        </div>
       </div>
 
       <DynamicModal

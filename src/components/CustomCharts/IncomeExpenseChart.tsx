@@ -22,10 +22,27 @@ export const IncomeExpenseChart = ({ data }: Props) => {
     datasets: [
       {
         data: [income, expense],
-        backgroundColor: ["#22c55e", "#ef4444"]
+        backgroundColor: ["#22c55e", "#ef4444"],
+        borderColor: "#ffffff",
+        borderWidth: 2,
       }
     ]
   };
 
-  return <Chart type="doughnut" data={chartData} className="w-full md:w-30rem" />;
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: "58%",
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+      },
+    },
+  };
+
+  if(income == 0 && expense == 0){
+    return <div className="dashboard-loading">No expense data available.</div>;
+  }
+
+  return <Chart type="doughnut" data={chartData} options={options} className="dashboard-chart" />;
 };

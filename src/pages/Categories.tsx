@@ -13,19 +13,16 @@ import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import { getTransactionTypeLabel } from "../utils/TransactionTypeHelper";
 import { Dropdown, type DropdownChangeEvent } from "primereact/dropdown";
 import { TransactionTypeCode } from "../enums/TransactionTypeCode";
+import { Card } from "primereact/card";
 
 const Categories = () => {
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
-
+  const [modalVisible, setModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [selectedCategory, setSelectedCategory] =
     useState<CategoryResponse | null>(null);
-  const [selectedTransactionType, setSelectedTransactionType] = useState<
-    number | null
-  >(null);
-
-  const [categoryName, setCategoryName] = useState<string>("");
+  const [selectedTransactionType, setSelectedTransactionType] = useState<number | null>(null);
+  const [categoryName, setCategoryName] = useState("");
   const [description, setDescription] = useState("");
 
   const loadCategories = async () => {
@@ -37,7 +34,6 @@ const Categories = () => {
     loadCategories();
   }, []);
 
-  // For edit mode
   useEffect(() => {
     if (!selectedCategory) return;
 
@@ -50,8 +46,8 @@ const Categories = () => {
     if (selectedTransactionType == null) return;
 
     const payload: CategoryRequest = {
-      categoryName: categoryName,
-      description: description,
+      categoryName,
+      description,
       transactionType: selectedTransactionType,
     };
 
@@ -64,46 +60,36 @@ const Categories = () => {
     setModalVisible(false);
   };
 
-  // Delete dialog accept function
   const accept = async () => {
     if (!selectedCategory) return;
     await CategoryService.delete(selectedCategory.categoryUID);
-
     await loadCategories();
   };
 
-  const transactionTypeTemplate = (rowData: Category) => {
-    return getTransactionTypeLabel(rowData.transactionType);
-  };
+  const transactionTypeTemplate = (rowData: Category) =>
+    getTransactionTypeLabel(rowData.transactionType);
 
   const transactionTypes = Object.entries(TransactionTypeCode)
-    .filter(([, value]) => value !== 0) // optional -> removes Undefined
+    .filter(([, value]) => value !== 0)
     .map(([key, value]) => ({
       name: key,
-      value: value,
+      value,
     }));
 
-  var columns: customColumn[] = [
+  const columns: customColumn[] = [
     { field: "categoryName", header: "Category Name" },
-    {
-      field: "transactionTypeCode",
-      header: "Type",
-      body: transactionTypeTemplate,
-    },
+    { field: "transactionTypeCode", header: "Type", body: transactionTypeTemplate },
     { field: "description", header: "Description" },
   ];
 
-  var content = (
+  const content = (
     <div className="flex flex-column gap-3">
       <div className="flex flex-column gap-1">
         <label>Transaction Type</label>
-
         <Dropdown
           options={transactionTypes}
           value={selectedTransactionType}
-          onChange={(e: DropdownChangeEvent) => {
-            setSelectedTransactionType(e.value);
-          }}
+          onChange={(e: DropdownChangeEvent) => setSelectedTransactionType(e.value)}
           optionLabel="name"
           optionValue="value"
           placeholder="Select transaction type"
@@ -139,65 +125,61 @@ const Categories = () => {
 
   const modalFooter = (
     <div className="flex align-items-center justify-content-between">
-      <Button
-        label="Cancel"
-        className="p-2"
-        icon="pi pi-cancel"
-        onClick={() => setModalVisible(false)}
-      />
-      <Button
-        label="Save"
-        className="p-2"
-        icon="pi pi-check"
-        onClick={handleSave}
-      />
+      <Button label="Cancel" className="p-2" icon="pi pi-times" severity="secondary" text onClick={() => setModalVisible(false)} />
+      <Button label="Save" className="p-2" icon="pi pi-check" onClick={handleSave} />
     </div>
   );
 
-  // Context menus
   const menuModel = [
     {
       label: "Edit",
       icon: "pi pi-fw pi-pencil",
-      command: () => {
-        setModalVisible(true);
-      },
+      command: () => setModalVisible(true),
     },
     {
       label: "Delete",
       icon: "pi pi-fw pi-times",
-      command: () => {
-        setDeleteModalVisible(true);
-      },
+      command: () => setDeleteModalVisible(true),
     },
   ];
 
   return (
-    <>
-      <div className="flex justify-content-between align-items-center">
-        <h3>List of Categories</h3>
-        <Button
-          className="flex align-items-center gap-2 p-2"
-          onClick={() => {
-            setModalVisible(true);
-            setCategoryName("");
-            setDescription("");
-            setSelectedCategory(null);
-          }}
-        >
-          <i className="pi pi-plus"></i>
-          <span className="hidden md:block">Add Category</span>
-        </Button>
+    <div className="dashboard-page">
+      <div className="dashboard-header">
+        <div>
+          <p className="dashboard-eyebrow">Organization</p>
+          <h2 className="dashboard-title">Categories</h2>
+          <p className="dashboard-subtitle">
+            Shape how your spending and income are grouped for better tracking.
+          </p>
+        </div>
+
+        <div className="dashboard-toolbar">
+          <Button
+            className="flex align-items-center gap-2 p-2"
+            onClick={() => {
+              setModalVisible(true);
+              setCategoryName("");
+              setDescription("");
+              setSelectedCategory(null);
+            }}
+          >
+            <i className="pi pi-plus"></i>
+            <span className="hidden md:block">Add Category</span>
+          </Button>
+        </div>
       </div>
 
-      <DynamicTable
-        value={categories}
-        columns={columns}
-        size="small"
-        menuModel={menuModel}
-        selectedRow={selectedCategory}
-        setSelectedRow={setSelectedCategory}
-      ></DynamicTable>
+      <Card className="dashboard-panel">
+        <DynamicTable
+          value={categories}
+          columns={columns}
+          size="small"
+          menuModel={menuModel}
+          selectedRow={selectedCategory}
+          setSelectedRow={setSelectedCategory}
+        />
+      </Card>
 
       <DynamicModal
         visible={modalVisible}
@@ -205,7 +187,7 @@ const Categories = () => {
         header={modalHeader}
         footer={modalFooter}
         content={content}
-      ></DynamicModal>
+      />
 
       <DeleteConfirmDialog
         message="Do you want to delete?"
@@ -214,8 +196,8 @@ const Categories = () => {
         visible={deleteModalVisible}
         setVisibile={setDeleteModalVisible}
         accept={accept}
-      ></DeleteConfirmDialog>
-    </>
+      />
+    </div>
   );
 };
 

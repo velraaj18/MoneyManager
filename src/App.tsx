@@ -8,6 +8,7 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import { ProtectedRoute } from "./auth/ProtectedRoute"
 import Budgets from './pages/Budgets';
+import Profile from "./pages/Profile"
 
 const App = () => {
   return(
@@ -24,9 +25,10 @@ const App = () => {
             <Route element={<DashboardLayout/>}>
               <Route element={<Dashboard/>} path="/"/>
               <Route element={<Transactions/>} path="/transactions"/>
-              <Route element= {<Accounts/>} path="/Accounts"/>
-              <Route element= {<Categories/>} path="/Category"/>
+              <Route element= {<Accounts/>} path="/accounts"/>
+              <Route element= {<Categories/>} path="/categories"/>
               <Route element={<Budgets/>} path="/budgets"/>
+              <Route element={<Profile/>} path="/profile"/>
             </Route>
           </Route>
         </Routes>

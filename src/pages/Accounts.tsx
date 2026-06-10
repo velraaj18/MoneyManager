@@ -9,17 +9,16 @@ import { Button } from "primereact/button";
 import { DynamicModal } from "../components/DynamicModal";
 import { InputText } from "primereact/inputtext";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
+import { Card } from "primereact/card";
 
 export const Accounts = () => {
   const [accounts, setAccounts] = useState<AccountsAPIResponse[]>([]);
   const [selectedId, setSelectedId] = useState<number>();
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
-
+  const [modalVisible, setModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [accountName, setAccountName] = useState("");
   const [description, setDescription] = useState("");
 
-  // fetch the accounts each time the page refreshes automatically using "useEffect"
   const loadAccounts = async () => {
     const res = await AccountService.getAll();
     setAccounts(res.data.data);
@@ -29,10 +28,8 @@ export const Accounts = () => {
     loadAccounts();
   }, []);
 
-  // Get the selected account for edit and delete
   const selectedAccount = accounts.find((x) => x.accountUID == selectedId);
 
-  // Pre-fill the modal on edit mode using the selected "Account" object
   useEffect(() => {
     if (!selectedAccount) {
       setAccountName("");
@@ -44,43 +41,36 @@ export const Accounts = () => {
     setDescription(selectedAccount.description);
   }, [selectedAccount]);
 
-  // this is the action template for the edit and delete on each row.
-  const actionTemplate = (rowData: AccountsAPIResponse) => {
-    return (
-      <div className="flex gap-2">
-        <Button
-          icon="pi pi-pencil"
-          severity="secondary"
-          text
-          onClick={() => {
-            setSelectedId(rowData.accountUID);
-            setModalVisible(true);
-          }}
-        />
-        <Button
-          icon="pi pi-trash"
-          severity="danger"
-          text
-          onClick={() => {
-            setSelectedId(rowData.accountUID);
-            setDeleteModalVisible(true);
-          }}
-        />
-      </div>
-    );
-  };
+  const actionTemplate = (rowData: AccountsAPIResponse) => (
+    <div className="flex gap-2">
+      <Button
+        icon="pi pi-pencil"
+        severity="secondary"
+        text
+        onClick={() => {
+          setSelectedId(rowData.accountUID);
+          setModalVisible(true);
+        }}
+      />
+      <Button
+        icon="pi pi-trash"
+        severity="danger"
+        text
+        onClick={() => {
+          setSelectedId(rowData.accountUID);
+          setDeleteModalVisible(true);
+        }}
+      />
+    </div>
+  );
 
-  // Columns for the data table
-  // the field should match the api response fields exactly [case sensitive]
-  var columns: customColumn[] = [
+  const columns: customColumn[] = [
     { field: "accountName", header: "Account Name" },
     { field: "description", header: "Description" },
     { field: "action", header: "Action", body: actionTemplate },
   ];
 
-  // Content to render inside the modal
-  // For edit mode the values will be loaded based on the selected ID.
-  var content = (
+  const content = (
     <div className="flex flex-column gap-3">
       <div className="flex flex-column gap-1">
         <label>Account Name</label>
@@ -105,8 +95,8 @@ export const Accounts = () => {
 
   const handleSave = async () => {
     const payload: CreateAccountRequest = {
-      accountName: accountName,
-      description: description,
+      accountName,
+      description,
     };
 
     if (selectedAccount) {
@@ -128,34 +118,29 @@ export const Accounts = () => {
 
   const modalFooter = (
     <div className="flex align-items-center justify-content-between">
-      <Button
-        label="Cancel"
-        className="p-2"
-        icon="pi pi-cancel"
-        onClick={() => setModalVisible(false)}
-      />
-      <Button
-        label="Save"
-        className="p-2"
-        icon="pi pi-check"
-        onClick={handleSave}
-      />
+      <Button label="Cancel" className="p-2" icon="pi pi-times" severity="secondary" text onClick={() => setModalVisible(false)} />
+      <Button label="Save" className="p-2" icon="pi pi-check" onClick={handleSave} />
     </div>
   );
 
-  // Delete dialog accept function
   const accept = async () => {
     if (!selectedId) return;
     await AccountService.delete(selectedId);
-    
     await loadAccounts();
   };
 
   return (
-    <>
-      <div>
-        <div className="flex justify-content-between align-items-center">
-          <h3>List of Accounts</h3>
+    <div className="dashboard-page">
+      <div className="dashboard-header">
+        <div>
+          <p className="dashboard-eyebrow">Wallets</p>
+          <h2 className="dashboard-title">Accounts</h2>
+          <p className="dashboard-subtitle">
+            Keep every account in one tidy view and manage them without friction.
+          </p>
+        </div>
+
+        <div className="dashboard-toolbar">
           <Button
             className="flex align-items-center gap-2 p-2"
             onClick={() => {
@@ -169,30 +154,28 @@ export const Accounts = () => {
             <span className="hidden md:block">Add Account</span>
           </Button>
         </div>
-
-        <DynamicTable
-          value={accounts}
-          size="small"
-          columns={columns}
-        ></DynamicTable>
-
-        <DynamicModal
-          visible={modalVisible}
-          setVisible={setModalVisible}
-          content={content}
-          header={modalHeader}
-          footer={modalFooter}
-        ></DynamicModal>
-
-        <DeleteConfirmDialog
-          message="Do you want to delete?"
-          header="Confirmation"
-          icon="pi pi-exclamation-triangle"
-          visible={deleteModalVisible}
-          setVisibile={setDeleteModalVisible}
-          accept={accept}
-        />
       </div>
-    </>
+
+      <Card className="dashboard-panel">
+        <DynamicTable value={accounts} size="small" columns={columns} />
+      </Card>
+
+      <DynamicModal
+        visible={modalVisible}
+        setVisible={setModalVisible}
+        content={content}
+        header={modalHeader}
+        footer={modalFooter}
+      />
+
+      <DeleteConfirmDialog
+        message="Do you want to delete?"
+        header="Confirmation"
+        icon="pi pi-exclamation-triangle"
+        visible={deleteModalVisible}
+        setVisibile={setDeleteModalVisible}
+        accept={accept}
+      />
+    </div>
   );
 };

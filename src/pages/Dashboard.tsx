@@ -82,7 +82,11 @@ const Dashboard = () => {
   }, []);
 
   const formatDate = (date: Date) => {
-    return date.toISOString().split("T")[0];
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
   };
 
   useEffect(() => {
@@ -111,7 +115,11 @@ const Dashboard = () => {
     const loadMonthly = async () => {
       try {
         setLoadingMonthly(true);
-        const res = await transactionService.getMonthlySummary();
+        const range = getDateRange(period);
+        const res = await transactionService.getMonthlySummary(
+          formatDate(range.start),
+          formatDate(range.end),
+        );
         setMonthlySummary(res.data.data);
       } catch {
         setError("Unable to load monthly summary right now.");
@@ -121,13 +129,17 @@ const Dashboard = () => {
     };
 
     loadMonthly();
-  }, []);
+  }, [period]);
 
   useEffect(() => {
     const loadAccounts = async () => {
       try {
         setLoadingAccounts(true);
-        const res = await transactionService.getAccountSummary();
+        const range = getDateRange(period);
+        const res = await transactionService.getAccountSummary(
+          formatDate(range.start),
+          formatDate(range.end),
+        );
         setAccountSummary(res.data.data);
       } catch {
         setError("Unable to load account summary right now.");
@@ -137,7 +149,7 @@ const Dashboard = () => {
     };
 
     loadAccounts();
-  }, []);
+  }, [period]);
 
   const totals = transactions.reduce(
     (acc, tx) => {
